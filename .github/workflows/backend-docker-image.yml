@@ -1,8 +1,9 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
+  # push:
+  #   branches: [ "main" ]
 
 jobs:
 
@@ -22,11 +23,11 @@ jobs:
     - name: Log in to Docker Hub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
     
-    - name: Build the frontend Docker image
-      run: docker build --file Dockerfile --tag fabiangnatzig/beerfrontend:${{ env.VERSION }} --tag fabiangnatzig/beerfrontend:latest .
+    - name: Build the backend Docker image
+      run: docker build --file Dockerfile --tag fabiangnatzig/beerbackend:${{ env.VERSION }} --tag fabiangnatzig/beerbackend:latest .
       
-    - name: publish the frontend Docker image
-      run: docker push fabiangnatzig/beerfrontend:${{ env.VERSION }}
-    - name: publish the latest frontend Docker image
-      run: docker push fabiangnatzig/beerfrontend:latest
+    - name: publish the backend Docker image
+      run: docker push fabiangnatzig/beerbackend:${{ env.VERSION }}
+    - name: publish the latest backend Docker image
+      run: docker push fabiangnatzig/beerbackend:latest
       
