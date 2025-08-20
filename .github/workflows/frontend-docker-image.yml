@@ -1,0 +1,32 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v4
+    - name: Extract version from CHANGELOG.md
+      id: version
+      run: |
+        VERSION=$(grep -m 1 '^## \[' beer-frontend/CHANGELOG.md | sed -E 's/^## \[([^]]+)\].*/\1/')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    
+    - name: Build the frontend Docker image
+      run: docker build beer-frontend/ --file beer-frontend/Dockerfile --tag fabiangnatzig/beerfrontend:${{ env.VERSION }} --tag fabiangnatzig/beerfrontend:latest
+      
+    - name: publish the frontend Docker image
+      run: docker push fabiangnatzig/beerfrontend:${{ env.VERSION }}
+    - name: publish the latest frontend Docker image
+      run: docker push fabiangnatzig/beerfrontend:latest
+      
