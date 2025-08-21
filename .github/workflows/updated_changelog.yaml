@@ -15,9 +15,10 @@ jobs:
         run: |
           git fetch origin ${{ github.base_ref }}
           if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "CHANGELOG.md"; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "CHANGELOG.md was updated"
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "CHANGELOG.md must be updated"
+            exit 1
           fi
 
       - name: Do something only if file changed
