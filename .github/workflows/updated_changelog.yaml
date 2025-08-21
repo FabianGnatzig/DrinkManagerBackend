@@ -9,9 +9,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check if file has changed
+        id: changes
         run: |
-          git fetch origin ${{ github.base_ref }} --depth=1 || true
-          if git diff --name-only origin/main...HEAD | grep "CHANGELOG.md"; then
+          git fetch origin ${{ github.base_ref }}
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "CHANGELOG.md"; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
