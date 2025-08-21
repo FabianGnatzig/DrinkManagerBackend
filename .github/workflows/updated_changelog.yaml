@@ -1,0 +1,22 @@
+name: Check updated changelog file
+
+on: [pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if file has changed
+        id: changes
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "CHANGELOG.md"; then
+            echo "CHANGELOG.md was updated"
+          else
+            echo "CHANGELOG.md must be updated"
+            exit 1
+          fi
