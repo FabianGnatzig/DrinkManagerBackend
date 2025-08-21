@@ -18,7 +18,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pylint
-        pip install -r Backend/requirements.txt
+        pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint --rcfile=Backend/.pylintrc $(git ls-files '*.py')
+        pylint --rcfile=.pylintrc $(git ls-files '*.py')
