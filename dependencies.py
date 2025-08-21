@@ -12,8 +12,6 @@ load_dotenv()
 
 DB = os.getenv("DATABASE")
 
-# connect_args = {"check_same_thread": False}
-
 engine = create_engine(DB)
 
 def create_db():

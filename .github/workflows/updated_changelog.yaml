@@ -20,7 +20,3 @@ jobs:
             echo "CHANGELOG.md must be updated"
             exit 1
           fi
-
-      - name: Do something only if file changed
-        if: steps.changes.outputs.changed == 'true'
-        run: echo "CHANGELOG.md has changed!"
