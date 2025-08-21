@@ -1,9 +1,9 @@
-name: Pylint
+name: Codestyle
 
 on: [pull_request]
 
 jobs:
-  build:
+  pylint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
