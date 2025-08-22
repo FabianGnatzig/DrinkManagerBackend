@@ -9,14 +9,22 @@ from dependencies import create_db, get_session
 TABLES = ['beer', 'brewery', 'bringbeer', 'event', 'season', 'team', 'user', 'userbeer']
 
 def test_root(client_fixture):
+    """
+    Tests the root route.
+    :param client_fixture: Test client.
+    :return: None
+    """
     response = client_fixture.get("/")
     assert response.status_code == 200
 
 
 def test_create_db(monkeypatch):
-    os.environ["DATABASE"] = "sqlite:///test.db"
-
-    test_engine = create_engine(os.getenv("DATABASE"))
+    """
+    Test the creation of a DB.
+    :param monkeypatch: Monkeypatch fixture.
+    :return: None
+    """
+    test_engine = create_engine("sqlite:///test.db")
     monkeypatch.setattr("dependencies.engine", test_engine)
     create_db()
     inspector = inspect(test_engine)
@@ -27,7 +35,12 @@ def test_create_db(monkeypatch):
 
 
 def test_get_session(monkeypatch):
-    test_engine = create_engine(os.getenv("DATABASE"))
+    """
+    Test the creation of a session.
+    :param monkeypatch: Monkeypatch fixture.
+    :return: None
+    """
+    test_engine = create_engine("sqlite:///test.db")
     monkeypatch.setattr("dependencies.engine", test_engine)
     session_gen = get_session()
     test_session = next(session_gen)
