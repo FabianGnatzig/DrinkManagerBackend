@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest coverage dateutil
+        pip install pytest coverage python-dateutil
         pip install -r requirements.txt
     - name: Analysing the code with pytest and coverage
       run: |
