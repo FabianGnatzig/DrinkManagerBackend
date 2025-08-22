@@ -25,8 +25,7 @@ def session_fixture(monkeypatch):
     test_engine = create_engine(DATABASE)
     monkeypatch.setattr("dependencies.engine", test_engine)
 
-    create_db()
-
+    SQLModel.metadata.create_all(test_engine)
     with Session(test_engine) as session:
         yield session
     SQLModel.metadata.drop_all(test_engine)
