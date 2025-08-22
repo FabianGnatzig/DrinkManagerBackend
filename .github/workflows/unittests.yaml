@@ -5,6 +5,8 @@ on: [pull_request]
 jobs:
   unittest:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "sqlite:///./test.db"
     strategy:
       matrix:
         python-version: ["3.12"]
