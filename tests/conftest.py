@@ -7,23 +7,20 @@ import os
 
 import pytest
 from sqlmodel import SQLModel, Session, create_engine
-from sqlmodel.pool import StaticPool
 from fastapi.testclient import TestClient
 
-from dependencies import get_session, create_db
+from dependencies import get_session
 from main import app
 
 DATABASE = "sqlite:///test.db"
 
 
 @pytest.fixture(name="session")
-def session_fixture(monkeypatch):
+def session_fixture():
     """
     Fixture for creating a test db session.
     """
-    os.environ["DATABASE"] = DATABASE
     test_engine = create_engine(DATABASE)
-    monkeypatch.setattr("dependencies.engine", test_engine)
 
     SQLModel.metadata.create_all(test_engine)
     with Session(test_engine) as session:
