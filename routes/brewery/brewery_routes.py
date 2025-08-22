@@ -90,10 +90,6 @@ def read_brewery_name(brewery_name: str, session: Session = Depends(get_session)
         raise HTTPException(
             status_code=404, detail=f"Brewery with name '{brewery_name}' not found!") from ex
 
-    if not brewery:
-        raise HTTPException(
-            status_code=404, detail=f"Brewery with name '{brewery_name}' not found!")
-
     brewery_json = brewery.model_dump()
     if brewery.beers:
         brewery_json.update({"brewery": brewery.beers})

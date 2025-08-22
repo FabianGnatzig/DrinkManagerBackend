@@ -89,9 +89,6 @@ def read_team_name(team_name: str, session: Session = Depends(get_session)) -> d
         raise HTTPException(
             status_code=404, detail=f"Team with name '{team_name}' not found!") from ex
 
-    if not team:
-        raise HTTPException(status_code=404, detail=f"Team with name '{team_name}' not found!")
-
     team_json = team.model_dump()
     if team.users:
         public_users = []

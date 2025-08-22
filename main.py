@@ -11,15 +11,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 
 
-from routers import (beer_router, bring_beer_router, user_beer_router, user_router, brewery_router,
-                     event_router, season_router, team_router, service_router)
+from routes import (beer_router, bring_beer_router, user_beer_router, user_router, brewery_router,
+                    event_router, season_router, team_router, service_router)
 
 from dependencies import get_session, create_db
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI): # pragma: no cover
     """
     Contextmanager for the FastAPI app.
     Initialize the DB.

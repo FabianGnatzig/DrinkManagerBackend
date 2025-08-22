@@ -2,44 +2,36 @@
 Created by Fabian Gnatzig
 Description:
 """
-import pytest
-from sqlmodel import SQLModel, Session, create_engine
-from sqlmodel.pool import StaticPool
-from fastapi.testclient import TestClient
+import os
+from sqlmodel import create_engine, inspect, Session
+from dependencies import create_db, get_session
 
-from dependencies import get_session
-from main import app
+TABLES = ['beer', 'brewery', 'bringbeer', 'event', 'season', 'team', 'user', 'userbeer']
 
-@pytest.fixture(name="session")
-def session_fixture():
-    """
-    Fixture for creating a test db session.
-    """
-    test_engine = create_engine(
-        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-    )
-    SQLModel.metadata.create_all(test_engine)
-    with Session(test_engine) as session:
-        yield session
-
-@pytest.fixture(name="client")
-def client_fixture(session: Session):
-    """
-    Fixture to create a test client.
-    :param session: The test db session.
-    """
-    def get_session_override():
-        """
-        Method for overriding the production db session with the test db session.
-        :return: The test db session.
-        """
-        return session
-
-    app.dependency_overrides[get_session] = get_session_override
-    client = TestClient(app)
-    yield client
-    app.dependency_overrides.clear()
+def test_root(client_fixture):
+    response = client_fixture.get("/")
+    assert response.status_code == 200
 
 
-def test_main():
-    assert True
+def test_create_db(monkeypatch):
+    os.environ["DATABASE"] = "sqlite:///test.db"
+
+    test_engine = create_engine(os.getenv("DATABASE"))
+    monkeypatch.setattr("dependencies.engine", test_engine)
+    create_db()
+    inspector = inspect(test_engine)
+    test_tables = inspector.get_table_names()
+
+    for table in TABLES:
+        assert table in test_tables
+
+
+def test_get_session(monkeypatch):
+    test_engine = create_engine(os.getenv("DATABASE"))
+    monkeypatch.setattr("dependencies.engine", test_engine)
+    session_gen = get_session()
+    test_session = next(session_gen)
+
+    assert isinstance(test_session, Session)
+
+    session_gen.close()

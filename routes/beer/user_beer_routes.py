@@ -1,6 +1,5 @@
 """
 Created by Fabian Gnatzig
-
 Description: HTTP routes of user beer.
 """
 from typing import Annotated, Sequence
@@ -80,7 +79,7 @@ def delete_beer(user_beer_id: int, session: Session = Depends(get_session)):
     user_beer = session.get(UserBeer, user_beer_id)
     if not user_beer:
         raise HTTPException(
-            status_code=404, detail=f"UserBeer with id '{user_beer_id}' not found!")
+            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!")
 
     session.delete(user_beer)
     session.commit()
