@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from dependencies import get_session
 from main import app
 
-DATABASE = "sqlite:///test.db"
+DATABASE = "sqlite:///./test.db"
 
 
 @pytest.fixture(name="session")
