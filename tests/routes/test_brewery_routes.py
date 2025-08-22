@@ -138,7 +138,7 @@ def test_delete_brewery(client_fixture):
 
     response = client_fixture.delete("/brewery/1")
     assert response.status_code == 200
-    assert response.json()["ok"] == True
+    assert response.json()["ok"] is True
 
 
 def test_delete_wrong_brewery(client_fixture):#

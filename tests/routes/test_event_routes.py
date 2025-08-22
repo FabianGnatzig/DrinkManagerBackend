@@ -2,7 +2,7 @@
 Created by Fabian Gnatzig
 Description: Unittests of event routes.
 """
-from tests.helper_methods import create_event, create_season, create_team, create_bring_beer, create_user
+from tests.helper_methods import create_event, create_season, create_team, create_bring_beer
 
 
 def test_read_events(client_fixture):
@@ -133,7 +133,7 @@ def test_delete_event(client_fixture):
 
     response = client_fixture.delete("/event/1")
     assert response.status_code == 200
-    assert response.json()["ok"] == True
+    assert response.json()["ok"] is True
 
 
 def test_delete_wrong_event(client_fixture):#

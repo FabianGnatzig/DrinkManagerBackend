@@ -3,8 +3,6 @@ Created by Fabian Gnatzig
 
 Description: 
 """
-import os
-
 import pytest
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient

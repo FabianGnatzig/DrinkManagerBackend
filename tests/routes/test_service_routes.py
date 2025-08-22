@@ -54,7 +54,6 @@ def test_check_birthday(client_fixture):
     :return: None
     """
     date = datetime.today().date()
-    print(date)
     test_payload = {
         "username": "a",
         "first_name": "fa",

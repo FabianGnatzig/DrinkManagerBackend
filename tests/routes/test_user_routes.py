@@ -2,7 +2,8 @@
 Created by Fabian Gnatzig
 Description: Unittests for user routes.
 """
-from tests.helper_methods import create_user, create_bring_beer, create_beer, create_team, create_user_beer
+from tests.helper_methods import (create_user, create_bring_beer, create_beer, create_team,
+                                  create_user_beer)
 
 
 def test_read_user(client_fixture):
@@ -116,7 +117,7 @@ def test_delete_user(client_fixture):
 
     response = client_fixture.delete("/user/1")
     assert response.status_code == 200
-    assert response.json()["ok"] == True
+    assert response.json()["ok"] is True
 
 
 def test_delete_wrong_user(client_fixture):#

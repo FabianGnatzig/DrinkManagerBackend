@@ -91,7 +91,7 @@ def test_delete_team(client_fixture):
 
     response = client_fixture.delete("/team/1")
     assert response.status_code == 200
-    assert response.json()["ok"] == True
+    assert response.json()["ok"] is True
 
 
 def test_delete_wrong_team(client_fixture):#

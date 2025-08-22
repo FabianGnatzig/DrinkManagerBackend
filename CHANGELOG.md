@@ -11,3 +11,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Setup for external DB. Environment variable DATABASE in Dockercontainer for DB setup.
 - Added changelog CI.
+
+
+## [v0.2.0] - 2025-08-22
+### Added
+- Added unittest

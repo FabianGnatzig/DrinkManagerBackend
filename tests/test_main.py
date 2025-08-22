@@ -2,7 +2,6 @@
 Created by Fabian Gnatzig
 Description:
 """
-import os
 from sqlmodel import create_engine, inspect, Session
 from dependencies import create_db, get_session
 

@@ -10,6 +10,10 @@ from models.user_models import UserBase, get_public_user
 
 
 def test_get_public_user():
+    """
+    Tests the public user class.
+    :return: None
+    """
     user = UserBase(
         username="testuser",
         first_name="Test",
@@ -30,5 +34,3 @@ def test_get_public_user():
         assert not global_user["team_id"]
 
     assert global_user["username"] == "testuser"
-
-
