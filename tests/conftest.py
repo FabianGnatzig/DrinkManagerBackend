@@ -1,8 +1,9 @@
 """
 Created by Fabian Gnatzig
 
-Description: 
+Description:
 """
+
 import pytest
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient
@@ -25,12 +26,14 @@ def session_fixture():
         yield session
     SQLModel.metadata.drop_all(test_engine)
 
+
 @pytest.fixture
 def client_fixture(session: Session):
     """
     Fixture to create a test client.
     :param session: The test db session.
     """
+
     def get_session_override():
         """
         Method for overriding the production db session with the test db session.

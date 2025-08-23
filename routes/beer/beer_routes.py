@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: HTTP routes of beer.
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Query, Depends, HTTPException
@@ -11,16 +12,14 @@ from sqlmodel import select, Session
 from dependencies import get_session
 from models.beer_models import Beer, BeerUpdate
 
-router = APIRouter(
-    prefix="/beer",
-    tags=["Beer"]
-)
+router = APIRouter(prefix="/beer", tags=["Beer"])
+
 
 @router.get("/all")
 def read_beers(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)] = 100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> list:
     """
     Reads all beer instances.
@@ -43,6 +42,7 @@ def read_beers(
         beers.append(beer_data)
     return beers
 
+
 @router.post("/add")
 def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
     """
@@ -58,6 +58,7 @@ def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
     session.refresh(beer)
     return beer
 
+
 @router.get("/{beer_id}")
 def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
     """
@@ -68,7 +69,9 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
     """
     beer = session.get(Beer, beer_id)
     if not beer:
-        raise HTTPException(status_code=404, detail=f"Beer with id '{beer_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Beer with id '{beer_id}' not found!"
+        )
 
     beer_json = beer.model_dump()
     if beer.brewery:
@@ -77,6 +80,7 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
         beer_json.update({"bring_beer": beer.bring_beer})
 
     return beer_json
+
 
 @router.get("/name/{beer_name}")
 def read_beer_name(beer_name: str, session: Session = Depends(get_session)) -> dict:
@@ -91,7 +95,8 @@ def read_beer_name(beer_name: str, session: Session = Depends(get_session)) -> d
         beer = session.exec(statement).one()
     except Exception as ex:
         raise HTTPException(
-            status_code=404, detail=f"Beer with name '{beer_name}' not found!") from ex
+            status_code=404, detail=f"Beer with name '{beer_name}' not found!"
+        ) from ex
 
     beer_json = beer.model_dump()
     if beer.brewery:
@@ -100,6 +105,7 @@ def read_beer_name(beer_name: str, session: Session = Depends(get_session)) -> d
         beer_json.update({"bring_beer": beer.bring_beer})
 
     return beer_json
+
 
 @router.delete("/{beer_id}")
 def delete_beer(beer_id: int, session: Session = Depends(get_session)):
@@ -111,14 +117,19 @@ def delete_beer(beer_id: int, session: Session = Depends(get_session)):
     """
     beer = session.get(Beer, beer_id)
     if not beer:
-        raise HTTPException(status_code=404, detail=f"Beer with id '{beer_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Beer with id '{beer_id}' not found!"
+        )
 
     session.delete(beer)
     session.commit()
     return {"ok": True}
 
+
 @router.patch("/{beer_id}")
-def update_beer(beer_id: int, beer: BeerUpdate, session: Session = Depends(get_session)):
+def update_beer(
+    beer_id: int, beer: BeerUpdate, session: Session = Depends(get_session)
+):
     """
     Updates the data of a beer.
     :param beer_id: The id of a beer to be edited.
@@ -128,7 +139,9 @@ def update_beer(beer_id: int, beer: BeerUpdate, session: Session = Depends(get_s
     """
     beer_db = session.get(Beer, beer_id)
     if not beer_db:
-        raise HTTPException(status_code=404, detail=f"Beer with id '{beer_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Beer with id '{beer_id}' not found!"
+        )
 
     beer_data = beer.model_dump(exclude_unset=True)
     beer_db.sqlmodel_update(beer_data)

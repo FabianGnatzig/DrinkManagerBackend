@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: HTTP routes of user beer.
 """
+
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Query, Depends, HTTPException
@@ -11,16 +12,14 @@ from dependencies import get_session
 from models.beer_models import UserBeer, UserBeerUpdate
 from models.user_models import User
 
-router = APIRouter(
-    prefix="/userbeer",
-    tags=["UserBeer"]
-)
+router = APIRouter(prefix="/userbeer", tags=["UserBeer"])
+
 
 @router.get("/all")
 def read_user_beers(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)] = 100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[UserBeer]:
     """
     Reads all user beer instances.
@@ -32,8 +31,11 @@ def read_user_beers(
     user_beer = session.exec(select(UserBeer).offset(offset).limit(limit)).all()
     return user_beer
 
+
 @router.post("/add")
-def create_beer(user_beer: UserBeer, session: Session = Depends(get_session)) -> UserBeer:
+def create_beer(
+    user_beer: UserBeer, session: Session = Depends(get_session)
+) -> UserBeer:
     """
     Creates a user beer instance.
     :param user_beer: The user beer instance.
@@ -47,8 +49,11 @@ def create_beer(user_beer: UserBeer, session: Session = Depends(get_session)) ->
     session.refresh(user_beer)
     return user_beer
 
+
 @router.get("/{user_beer_id}")
-def read_user_beer_id(user_beer_id: int, session: Session = Depends(get_session)) -> dict:
+def read_user_beer_id(
+    user_beer_id: int, session: Session = Depends(get_session)
+) -> dict:
     """
     Searches for a user beer with beer_id.
     :param user_beer_id: The user_beer_id to search for.
@@ -58,7 +63,8 @@ def read_user_beer_id(user_beer_id: int, session: Session = Depends(get_session)
     user_beer = session.get(UserBeer, user_beer_id)
     if not user_beer:
         raise HTTPException(
-            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!")
+            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!"
+        )
 
     user_beer_json = user_beer.model_dump()
     if user_beer.user:
@@ -67,6 +73,7 @@ def read_user_beer_id(user_beer_id: int, session: Session = Depends(get_session)
         user_beer_json.update({"bring_beer": user_beer.bring_beer.model_dump()})
 
     return user_beer_json
+
 
 @router.delete("/{user_beer_id}")
 def delete_beer(user_beer_id: int, session: Session = Depends(get_session)):
@@ -79,17 +86,19 @@ def delete_beer(user_beer_id: int, session: Session = Depends(get_session)):
     user_beer = session.get(UserBeer, user_beer_id)
     if not user_beer:
         raise HTTPException(
-            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!")
+            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!"
+        )
 
     session.delete(user_beer)
     session.commit()
     return {"ok": True}
 
+
 @router.patch("/{user_beer_id}")
 def update_beer(
-        user_beer_id: int,
-        user_beer: UserBeerUpdate,
-        session: Session = Depends(get_session)
+    user_beer_id: int,
+    user_beer: UserBeerUpdate,
+    session: Session = Depends(get_session),
 ):
     """
     Updates the data of a user beer.
@@ -101,7 +110,8 @@ def update_beer(
     user_beer_db = session.get(UserBeer, user_beer_id)
     if not user_beer_db:
         raise HTTPException(
-            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!")
+            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!"
+        )
 
     user_beer_data = user_beer.model_dump(exclude_unset=True)
     user_beer_db.sqlmodel_update(user_beer_data)

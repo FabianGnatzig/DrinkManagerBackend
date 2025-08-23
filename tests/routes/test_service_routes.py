@@ -2,10 +2,16 @@
 Created by Fabian Gnatzig
 Description: Unittest for service routes
 """
+
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
-from tests.helper_methods import create_beer, create_user, create_user_beer, create_bring_beer
+from tests.helper_methods import (
+    create_beer,
+    create_user,
+    create_user_beer,
+    create_bring_beer,
+)
 
 
 def test_read_open_beers(client_fixture):
@@ -31,7 +37,6 @@ def test_read_beer_amounts(client_fixture):
     """
     create_beer(client_fixture)
     create_user(client_fixture)
-
 
     response = client_fixture.get("/service/beer_amount")
     assert response.status_code == 200
@@ -63,7 +68,7 @@ def test_check_birthday(client_fixture):
         "password": "pswd",
         "role": "test_role",
     }
-    response =  client_fixture.post("/user/add", json=test_payload)
+    response = client_fixture.post("/user/add", json=test_payload)
     assert response.status_code == 200
 
     test_payload["username"] = "b"

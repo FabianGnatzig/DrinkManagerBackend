@@ -2,7 +2,13 @@
 Created by Fabian Gnatzig
 Description: Unittests of bring beer routes.
 """
-from tests.helper_methods import create_bring_beer, create_beer, create_event, create_user
+
+from tests.helper_methods import (
+    create_bring_beer,
+    create_beer,
+    create_event,
+    create_user,
+)
 
 
 def test_read_empty_bring_beers(client_fixture):
@@ -46,6 +52,7 @@ def test_read_wrong_bring_beer_id(client_fixture):
     assert response.status_code == 404
     assert response.json()["detail"] == f"Bring beer with id '{wrong_id}' not found!"
 
+
 def test_delete_bring_beer(client_fixture):
     """
     Test the deleting of a bring_beer.
@@ -57,6 +64,7 @@ def test_delete_bring_beer(client_fixture):
     response = client_fixture.delete("/bringbeer/1")
     assert response.status_code == 200
     assert response.json()["ok"] is True
+
 
 def test_delete_wrong_bring_beer(client_fixture):  #
     """
@@ -70,6 +78,7 @@ def test_delete_wrong_bring_beer(client_fixture):  #
     assert response.status_code == 404
     assert response.json()["detail"] == f"Bring beer with id '{wrong_id}' not found!"
 
+
 def test_update_bring_beer_name(client_fixture):
     """
     Test the update of a bring_beer.
@@ -78,9 +87,7 @@ def test_update_bring_beer_name(client_fixture):
     """
     create_bring_beer(client_fixture)
     new_id = 2
-    test_payload = {
-        "beer_id": f"{new_id}"
-    }
+    test_payload = {"beer_id": f"{new_id}"}
 
     response = client_fixture.patch("/bringbeer/1", json=test_payload)
     assert response.status_code == 200
@@ -99,6 +106,7 @@ def test_update_wrong_bring_beer(client_fixture):
     response = client_fixture.patch(f"/bringbeer/{wrong_id}", json={})
     assert response.status_code == 404
     assert response.json()["detail"] == f"Bring beer with id '{wrong_id}' not found!"
+
 
 def test_read_done_bring_beer(client_fixture):
     """

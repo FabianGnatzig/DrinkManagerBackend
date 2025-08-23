@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: Http routes of bring beers.
 """
+
 from typing import Sequence, Annotated
 
 from fastapi import APIRouter, Depends, Query, HTTPException
@@ -11,16 +12,14 @@ from sqlmodel import Session, select
 from dependencies import get_session
 from models.beer_models import BringBeer, BringBeerUpdate
 
-router = APIRouter(
-    prefix="/bringbeer",
-    tags=["BringBeer"]
-)
+router = APIRouter(prefix="/bringbeer", tags=["BringBeer"])
+
 
 @router.get("/all")
 def read_bring_beers(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)] = 100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[BringBeer]:
     """
     Reads all bring beer instances.
@@ -33,8 +32,11 @@ def read_bring_beers(
     bring_beers = session.exec(statements).all()
     return bring_beers
 
+
 @router.get("/{bring_beer_id}")
-def read_bring_beer_id(bring_beer_id: int, session: Session = Depends(get_session)) -> dict:
+def read_bring_beer_id(
+    bring_beer_id: int, session: Session = Depends(get_session)
+) -> dict:
     """
     Searches for a bring beer with id.
     :param bring_beer_id: ID of a bring beer instance.
@@ -44,7 +46,8 @@ def read_bring_beer_id(bring_beer_id: int, session: Session = Depends(get_sessio
     bring_beer = session.get(BringBeer, bring_beer_id)
     if not bring_beer:
         raise HTTPException(
-            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!")
+            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!"
+        )
 
     bring_beer_json = bring_beer.model_dump()
     if bring_beer.user:
@@ -55,8 +58,11 @@ def read_bring_beer_id(bring_beer_id: int, session: Session = Depends(get_sessio
         bring_beer_json.update({"beer": bring_beer.beer.model_dump()})
     return bring_beer_json
 
+
 @router.post("/add")
-def create_bring_beer(bring_beer: BringBeer, session: Session = Depends(get_session)) -> BringBeer:
+def create_bring_beer(
+    bring_beer: BringBeer, session: Session = Depends(get_session)
+) -> BringBeer:
     """
     Creates a bring beer instance.
     :param bring_beer: The bring beer instance.
@@ -68,8 +74,11 @@ def create_bring_beer(bring_beer: BringBeer, session: Session = Depends(get_sess
     session.refresh(bring_beer)
     return bring_beer
 
+
 @router.delete("/{bring_beer_id}")
-def delete_bring_beer(bring_beer_id: int, session: Session = Depends(get_session)) -> dict:
+def delete_bring_beer(
+    bring_beer_id: int, session: Session = Depends(get_session)
+) -> dict:
     """
     Deletes a bring beer with id.
     :param bring_beer_id: ID of bring beer instance.
@@ -79,17 +88,19 @@ def delete_bring_beer(bring_beer_id: int, session: Session = Depends(get_session
     bring_beer = session.get(BringBeer, bring_beer_id)
     if not bring_beer:
         raise HTTPException(
-            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!")
+            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!"
+        )
 
     session.delete(bring_beer)
     session.commit()
     return {"ok": True}
 
+
 @router.patch("/{bring_beer_id}")
 def update_bring_beer(
-        bring_beer_id: int,
-        bring_beer: BringBeerUpdate,
-        session: Session = Depends(get_session)
+    bring_beer_id: int,
+    bring_beer: BringBeerUpdate,
+    session: Session = Depends(get_session),
 ) -> BringBeer:
     """
     Updates the data of a bring beer instance.
@@ -101,7 +112,8 @@ def update_bring_beer(
     bring_beer_db = session.get(BringBeer, bring_beer_id)
     if not bring_beer_db:
         raise HTTPException(
-            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!")
+            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!"
+        )
 
     bring_beer_data = bring_beer.model_dump(exclude_unset=True)
     bring_beer_db.sqlmodel_update(bring_beer_data)
@@ -109,6 +121,7 @@ def update_bring_beer(
     session.commit()
     session.refresh(bring_beer_db)
     return bring_beer_db
+
 
 @router.get("/done/{bring_beer_id}")
 def set_bring_beer_done(bring_beer_id: int, session: Session = Depends(get_session)):

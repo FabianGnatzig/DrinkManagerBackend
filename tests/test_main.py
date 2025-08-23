@@ -2,10 +2,12 @@
 Created by Fabian Gnatzig
 Description:
 """
+
 from sqlmodel import create_engine, inspect, Session
 from dependencies import create_db, get_session
 
-TABLES = ['beer', 'brewery', 'bringbeer', 'event', 'season', 'team', 'user', 'userbeer']
+TABLES = ["beer", "brewery", "bringbeer", "event", "season", "team", "user", "userbeer"]
+
 
 def test_root(client_fixture):
     """

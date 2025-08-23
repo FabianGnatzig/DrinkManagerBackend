@@ -2,7 +2,13 @@
 Created by Fabian Gnatzig
 Description: Unittests of event routes.
 """
-from tests.helper_methods import create_event, create_season, create_team, create_bring_beer
+
+from tests.helper_methods import (
+    create_event,
+    create_season,
+    create_team,
+    create_bring_beer,
+)
 
 
 def test_read_events(client_fixture):
@@ -91,6 +97,7 @@ def test_read_wrong_event_name(client_fixture):
     assert response.status_code == 404
     assert response.json()["detail"] == f"Event with name '{wrong_name}' not found!"
 
+
 def test_add_empty_event(client_fixture):
     """
     Test add an event without name.
@@ -104,7 +111,7 @@ def test_add_empty_event(client_fixture):
     }
 
     response = client_fixture.post("/event/add", json=test_payload)
-    assert response.status_code== 400
+    assert response.status_code == 400
     assert response.json()["detail"] == "Invalid event"
 
 
@@ -140,7 +147,7 @@ def test_delete_event(client_fixture):
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_event(client_fixture):#
+def test_delete_wrong_event(client_fixture):  #
     """
     Test the deletion of an event exception.
     :param client_fixture: Test client.
@@ -164,9 +171,7 @@ def test_update_event_name(client_fixture):
     create_event(client_fixture)
 
     new_name = "new_test_event"
-    test_payload = {
-        "name": f"{new_name}"
-    }
+    test_payload = {"name": f"{new_name}"}
 
     response = client_fixture.patch("/event/1", json=test_payload)
     assert response.status_code == 200

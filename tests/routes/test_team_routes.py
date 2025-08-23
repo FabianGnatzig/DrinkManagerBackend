@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: Unittests for team routes.
 """
+
 from tests.helper_methods import create_team, create_season, create_user
 
 
@@ -96,7 +97,7 @@ def test_delete_team(client_fixture):
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_team(client_fixture):#
+def test_delete_wrong_team(client_fixture):  #
     """
     Test the deletion of a team exception.
     :param client_fixture: Test client.
@@ -118,9 +119,7 @@ def test_update_team_name(client_fixture):
     create_team(client_fixture)
 
     new_name = "new_test_team"
-    test_payload = {
-        "name": f"{new_name}"
-    }
+    test_payload = {"name": f"{new_name}"}
 
     response = client_fixture.patch("/team/1", json=test_payload)
     assert response.status_code == 200
@@ -135,9 +134,7 @@ def test_add_wrong_team_name(client_fixture):
     """
     create_team(client_fixture)
 
-    test_payload = {
-        "name": ""
-    }
+    test_payload = {"name": ""}
 
     response = client_fixture.post("/team/add", json=test_payload)
     assert response.status_code == 400

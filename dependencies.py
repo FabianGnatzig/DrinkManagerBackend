@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: Shared methods for project.
 """
+
 import os
 
 from dotenv import load_dotenv
@@ -14,11 +15,13 @@ DB = os.getenv("DATABASE")
 
 engine = create_engine(DB)
 
+
 def create_db():
     """
     Creates the db.
     """
     SQLModel.metadata.create_all(engine)
+
 
 def get_session():
     """

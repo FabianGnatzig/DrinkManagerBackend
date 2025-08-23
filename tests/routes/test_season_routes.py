@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: Unittests of season routes.
 """
+
 from tests.helper_methods import create_season, create_team, create_event
 
 
@@ -86,6 +87,7 @@ def test_read_wrong_season_name(client_fixture):
     assert response.status_code == 404
     assert response.json()["detail"] == f"Season with name '{wrong_name}' not found!"
 
+
 def test_add_empty_season(client_fixture):
     """
     Test add a season without name.
@@ -98,7 +100,7 @@ def test_add_empty_season(client_fixture):
     }
 
     response = client_fixture.post("/season/add", json=test_payload)
-    assert response.status_code== 400
+    assert response.status_code == 400
     assert response.json()["detail"] == "Invalid season"
 
 
@@ -132,7 +134,7 @@ def test_delete_season(client_fixture):
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_season(client_fixture):#
+def test_delete_wrong_season(client_fixture):  #
     """
     Test the deletion of a season exception.
     :param client_fixture: Test client.
@@ -155,9 +157,7 @@ def test_update_season_name(client_fixture):
     create_season(client_fixture)
 
     new_name = "new_test_season"
-    test_payload = {
-        "name": f"{new_name}"
-    }
+    test_payload = {"name": f"{new_name}"}
 
     response = client_fixture.patch("/season/1", json=test_payload)
     assert response.status_code == 200

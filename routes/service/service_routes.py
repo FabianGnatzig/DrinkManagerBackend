@@ -1,8 +1,9 @@
 """
 Created by Fabian Gnatzig
 
-Description: 
+Description:
 """
+
 from datetime import datetime
 
 from fastapi import APIRouter, Depends
@@ -13,10 +14,7 @@ from models.beer_models import BringBeer, UserBeer
 from models.user_models import User
 from routes.beer.user_beer_routes import create_beer
 
-router = APIRouter(
-    prefix="/service",
-    tags=["Service"]
-)
+router = APIRouter(prefix="/service", tags=["Service"])
 
 
 @router.get("/all_open_beer")
@@ -44,11 +42,12 @@ def read_open_beer(session: Session = Depends(get_session)):
                 "user": f"{user.first_name} {user.last_name}",
                 "user_id": user.id,
                 "user_beer_id": result.id,
-                "kind": result.kind
+                "kind": result.kind,
             }
         )
 
     return open_user_beers
+
 
 @router.get("/beer_amount")
 def read_number_beer(session: Session = Depends(get_session)):
@@ -66,27 +65,20 @@ def read_number_beer(session: Session = Depends(get_session)):
         user_dict.update({"user": f"{user.first_name} {user.last_name}"})
 
         if user.bring_beer:
-            user_dict.update(
-                {"amount": len(user.bring_beer)}
-            )
+            user_dict.update({"amount": len(user.bring_beer)})
         else:
-            user_dict.update(
-                {"amount": 0}
-            )
+            user_dict.update({"amount": 0})
 
         if user.user_beer:
-            user_dict.update(
-                {"included_fine": len(user.user_beer)}
-            )
+            user_dict.update({"included_fine": len(user.user_beer)})
         else:
-            user_dict.update(
-                {"included_fine": 0}
-            )
+            user_dict.update({"included_fine": 0})
 
         beer_amount.append(user_dict)
 
-
-    sorted_amounts = sorted(beer_amount, key=lambda item: item["amount"] - item["included_fine"])
+    sorted_amounts = sorted(
+        beer_amount, key=lambda item: item["amount"] - item["included_fine"]
+    )
     return sorted_amounts
 
 

@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: Unittests of beer-routes.
 """
+
 from tests.helper_methods import create_brewery, create_bring_beer, create_beer
 
 
@@ -36,6 +37,7 @@ def test_read_beers(client_fixture):
     assert response.status_code == 200
     assert len(response.json()) == 2
 
+
 def test_read_beer_without_brewery(client_fixture):
     """
     Test read beer without connected brewery.
@@ -54,6 +56,7 @@ def test_read_beer_without_brewery(client_fixture):
     assert response.status_code == 200
     assert len(response.json()) == 2
 
+
 def test_create_beer(client_fixture):
     """
     Test the beer creation.
@@ -65,6 +68,7 @@ def test_create_beer(client_fixture):
     assert response.json()["beer_code"] == 1234
     assert response.json()["volume"] == 0.2
     assert response.json()["id"] == 1
+
 
 def test_create_wrong_beer(client_fixture):
     """
@@ -137,6 +141,7 @@ def test_read_wrong_beer_name(client_fixture):
     assert response.status_code == 404
     assert response.json()["detail"] == f"Beer with name '{wrong_name}' not found!"
 
+
 def test_delete_beer(client_fixture):
     """
     Test the deleting of a beer.
@@ -150,7 +155,7 @@ def test_delete_beer(client_fixture):
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_beer(client_fixture):#
+def test_delete_wrong_beer(client_fixture):  #
     """
     Test the deletion of a beer exception.
     :param client_fixture: Test client.
@@ -171,9 +176,7 @@ def test_update_beer_name(client_fixture):
     """
     create_beer(client_fixture)
     new_name = "new_test_beer"
-    test_payload = {
-        "name": f"{new_name}"
-    }
+    test_payload = {"name": f"{new_name}"}
 
     response = client_fixture.patch("/beer/1", json=test_payload)
     assert response.status_code == 200

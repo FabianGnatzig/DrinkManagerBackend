@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: HTTP routes of season.
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, HTTPException
@@ -11,16 +12,14 @@ from sqlmodel import Session, select
 from dependencies import get_session
 from models.season_models import Season, SeasonUpdate
 
-router = APIRouter(
-    prefix="/season",
-    tags=["Season"]
-)
+router = APIRouter(prefix="/season", tags=["Season"])
+
 
 @router.get("/all")
 def read_all_seasons(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)]=100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> list:
     """
     Reads all season instances.
@@ -39,6 +38,7 @@ def read_all_seasons(
         seasons.append(season_data)
     return seasons
 
+
 @router.get("/{season_id}")
 def get_season_id(season_id: int, session: Session = Depends(get_session)) -> dict:
     """
@@ -49,7 +49,9 @@ def get_season_id(season_id: int, session: Session = Depends(get_session)) -> di
     """
     season = session.get(Season, season_id)
     if not season:
-        raise HTTPException(status_code=404, detail=f"Season with id '{season_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Season with id '{season_id}' not found!"
+        )
 
     season_json = season.model_dump()
     if season.team:
@@ -57,6 +59,7 @@ def get_season_id(season_id: int, session: Session = Depends(get_session)) -> di
     if season.events:
         season_json.update({"events": season.events})
     return season_json
+
 
 @router.get("/name/{season_name}")
 def get_season_name(season_name: str, session: Session = Depends(get_session)) -> dict:
@@ -71,7 +74,8 @@ def get_season_name(season_name: str, session: Session = Depends(get_session)) -
         season = session.exec(statement).one()
     except Exception as ex:
         raise HTTPException(
-            status_code=404, detail=f"Season with name '{season_name}' not found!") from ex
+            status_code=404, detail=f"Season with name '{season_name}' not found!"
+        ) from ex
 
     season_json = season.model_dump()
     if season.team:
@@ -79,6 +83,7 @@ def get_season_name(season_name: str, session: Session = Depends(get_session)) -
     if season.events:
         season_json.update({"events": season.events})
     return season_json
+
 
 @router.post("/add")
 def create_season(season: Season, session: Session = Depends(get_session)) -> Season:
@@ -96,6 +101,7 @@ def create_season(season: Season, session: Session = Depends(get_session)) -> Se
     session.refresh(season)
     return season
 
+
 @router.delete("/{season_id}")
 def delete_season(season_id: int, session: Session = Depends(get_session)) -> dict:
     """
@@ -106,17 +112,18 @@ def delete_season(season_id: int, session: Session = Depends(get_session)) -> di
     """
     season = session.get(Season, season_id)
     if not season:
-        raise HTTPException(status_code=404, detail=f"Season with id '{season_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Season with id '{season_id}' not found!"
+        )
 
     session.delete(season)
     session.commit()
     return {"ok": True}
 
+
 @router.patch("/{season_id}")
 def update_season(
-        season_id: int,
-        season: SeasonUpdate,
-        session: Session = Depends(get_session)
+    season_id: int, season: SeasonUpdate, session: Session = Depends(get_session)
 ) -> Season:
     """
     Updates the data of a season.
@@ -127,7 +134,9 @@ def update_season(
     """
     season_db = session.get(Season, season_id)
     if not season_db:
-        raise HTTPException(status_code=404, detail=f"Season with id '{season_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Season with id '{season_id}' not found!"
+        )
 
     season_data = season.model_dump(exclude_unset=True)
     season_db.sqlmodel_update(season_data)
