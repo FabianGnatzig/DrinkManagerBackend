@@ -31,6 +31,7 @@ def test_read_bring_beer_id(client_fixture):
     assert response.status_code == 200
     assert response.json()["user"]
     assert response.json()["event"]
+    assert response.json()["beer"]
 
 
 def test_read_wrong_bring_beer_id(client_fixture):

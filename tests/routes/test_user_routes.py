@@ -34,6 +34,9 @@ def test_read_user_id(client_fixture):
     response = client_fixture.get("/user/1")
     assert response.status_code == 200
     assert response.json()["username"] == "name"
+    assert response.json()["team"]
+    assert response.json()["bring_beer"]
+    assert response.json()["user_beer"]
 
 
 def test_read_wrong_user_id(client_fixture):
@@ -66,9 +69,11 @@ def test_read_user_name(client_fixture):
 
 
     response = client_fixture.get(f"/user/name/{user_name}")
-    print(response.json())
     assert response.status_code == 200
     assert response.json()["team_id"] == 1
+    assert response.json()["team"]
+    assert response.json()["bring_beer"]
+    assert response.json()["user_beer"]
 
 
 def test_read_wrong_user_name(client_fixture):

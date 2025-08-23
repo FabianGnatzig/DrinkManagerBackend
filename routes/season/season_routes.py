@@ -53,7 +53,7 @@ def get_season_id(season_id: int, session: Session = Depends(get_session)) -> di
 
     season_json = season.model_dump()
     if season.team:
-        season_json.update({"team":season.team.model_dump()})
+        season_json.update({"team": season.team.model_dump()})
     if season.events:
         season_json.update({"events": season.events})
     return season_json

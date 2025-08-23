@@ -91,6 +91,8 @@ def test_read_beer_id(client_fixture):
     assert response.status_code == 200
     assert response.json()["beer_code"] == 1234
     assert response.json()["volume"] == 0.2
+    assert response.json()["brewery"]
+    assert response.json()["bring_beer"]
 
 
 def test_read_wrong_beer_id(client_fixture):
@@ -119,6 +121,8 @@ def test_read_beer_name(client_fixture):
     response = client_fixture.get("/beer/name/test_beer")
     assert response.json()["beer_code"] == 1234
     assert response.json()["volume"] == 0.2
+    assert response.json()["brewery"]
+    assert response.json()["bring_beer"]
 
 
 def test_read_wrong_beer_name(client_fixture):

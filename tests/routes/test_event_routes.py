@@ -34,6 +34,8 @@ def test_read_event_id(client_fixture):
     response = client_fixture.get("/event/1")
     assert response.status_code == 200
     assert response.json()["name"] == "test_event"
+    assert response.json()["season"]
+    assert response.json()["bring_beer"]
 
 
 def test_read_wrong_event_id(client_fixture):
@@ -69,6 +71,8 @@ def test_read_event_name(client_fixture):
     response = client_fixture.get(f"/event/name/{event_name}")
     assert response.status_code == 200
     assert response.json()["event_date"] == "2025-08-21"
+    assert response.json()["season"]
+    assert response.json()["bring_beer"]
 
 
 def test_read_wrong_event_name(client_fixture):
