@@ -32,7 +32,6 @@ def test_read_season_id(client_fixture):
     response = client_fixture.get("/season/1")
     assert response.status_code == 200
     assert response.json()["name"] == "test_season"
-    assert response.json()["season"]
     assert response.json()["team"]
     assert response.json()["events"]
 

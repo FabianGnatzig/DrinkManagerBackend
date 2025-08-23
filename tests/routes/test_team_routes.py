@@ -31,9 +31,7 @@ def test_read_team_id(client_fixture):
     response = client_fixture.get("/team/1")
     assert response.status_code == 200
     assert response.json()["name"] == "test_team"
-    assert response.json()["team"]
     assert response.json()["users"]
-    assert response.json()["team"]
     assert response.json()["seasons"]
 
 
@@ -66,7 +64,7 @@ def test_read_team_name(client_fixture):
     response = client_fixture.get(f"/team/name/{team_name}")
     assert response.status_code == 200
     assert response.json()["name"] == "test_team"
-    assert response.json()["team"]
+    assert response.json()["users"]
     assert response.json()["seasons"]
 
 

@@ -69,7 +69,7 @@ def get_user_id(user_id: int, session: Session = Depends(get_session)) -> dict:
     if user.team:
         user_json.update({"team": user.team.model_dump()})
     if user.bring_beer:
-        user_json.update({"brig_beer":user.bring_beer})
+        user_json.update({"bring_beer":user.bring_beer})
     if user.user_beer:
         user_json.update({"user_beer": user.user_beer})
     return user_json

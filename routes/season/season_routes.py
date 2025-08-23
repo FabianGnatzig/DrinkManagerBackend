@@ -76,6 +76,8 @@ def get_season_name(season_name: str, session: Session = Depends(get_session)) -
     season_json = season.model_dump()
     if season.team:
         season_json.update({"team": season.team.model_dump()})
+    if season.events:
+        season_json.update({"events": season.events})
     return season_json
 
 @router.post("/add")
