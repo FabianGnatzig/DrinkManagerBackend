@@ -15,3 +15,7 @@ All notable changes to this project will be documented in this file.
 ## [v0.2.0] - 2025-08-22
 ### Added
 - Added unittest
+
+## [v0.3.0] - 2025-08-23
+### Added
+- Added black formatter

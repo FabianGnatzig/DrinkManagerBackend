@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: Models of users.
 """
+
 from datetime import date
 from typing import Optional, TYPE_CHECKING
 
@@ -19,6 +20,7 @@ class UserBase(SQLModel):
     """
     Base data class of user.
     """
+
     username: str
     first_name: str
     last_name: str
@@ -27,19 +29,23 @@ class UserBase(SQLModel):
     password: str
     role: str
 
+
 class User(UserBase, table=True):
     """
     Table class of user.
     """
+
     id: int | None = Field(default=None, primary_key=True)
     team: Optional["Team"] = Relationship(back_populates="users")
     user_beer: list["UserBeer"] = Relationship(back_populates="user")
     bring_beer: list["BringBeer"] = Relationship(back_populates="user")
 
+
 class UserUpdate(UserBase):
     """
     Update class of user.
     """
+
     username: str | None = None
     first_name: str | None = None
     last_name: str | None = None
@@ -47,6 +53,7 @@ class UserUpdate(UserBase):
     team_id: int | None = None
     password: str | None = None
     role: str | None = None
+
 
 def get_public_user(user: User) -> dict:
     """

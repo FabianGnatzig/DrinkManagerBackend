@@ -36,6 +36,7 @@ def test_read_brewery(client_fixture):
     assert response.status_code == 200
     assert len(response.json()) == 2
 
+
 def test_read_brewery_without_beer(client_fixture):
     """
     Test read brewery without connected brewery.
@@ -54,6 +55,7 @@ def test_read_brewery_without_beer(client_fixture):
     assert response.status_code == 200
     assert len(response.json()) == 2
 
+
 def test_create_brewery(client_fixture):
     """
     Test the brewery creation.
@@ -64,6 +66,7 @@ def test_create_brewery(client_fixture):
     assert response.status_code == 200
     assert response.json()["name"] == "test_brewery"
     assert response.json()["city"] == "test_city"
+
 
 def test_create_wrong_brewery(client_fixture):
     """
@@ -130,6 +133,7 @@ def test_read_wrong_brewery_name(client_fixture):
     assert response.status_code == 404
     assert response.json()["detail"] == f"Brewery with name '{wrong_name}' not found!"
 
+
 def test_delete_brewery(client_fixture):
     """
     Test the deleting of a brewery.
@@ -143,7 +147,7 @@ def test_delete_brewery(client_fixture):
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_brewery(client_fixture):#
+def test_delete_wrong_brewery(client_fixture):  #
     """
     Test the deletion of a brewery exception.
     :param client_fixture: Test client.
@@ -164,9 +168,7 @@ def test_update_brewery_name(client_fixture):
     """
     create_brewery(client_fixture)
     new_name = "new_test_brewery"
-    test_payload = {
-        "name": f"{new_name}"
-    }
+    test_payload = {"name": f"{new_name}"}
 
     response = client_fixture.patch("/brewery/1", json=test_payload)
     assert response.status_code == 200

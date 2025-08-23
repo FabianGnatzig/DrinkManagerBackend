@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: HTTP Routes of user.
 """
+
 from datetime import datetime
 from typing import Annotated, Sequence
 
@@ -12,16 +13,14 @@ from sqlmodel import Session, select
 from dependencies import get_session
 from models.user_models import User, UserUpdate
 
-router = APIRouter(
-    prefix="/user",
-    tags=["User"]
-)
+router = APIRouter(prefix="/user", tags=["User"])
+
 
 @router.get("/all")
 def get_all_user(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)]=100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[User]:
     """
     Reads all user instances.
@@ -34,6 +33,7 @@ def get_all_user(
     users = session.exec(statement).all()
     return users
 
+
 @router.post("/add")
 def create_user(user_data: dict, session: Session = Depends(get_session)) -> User:
     """
@@ -43,7 +43,9 @@ def create_user(user_data: dict, session: Session = Depends(get_session)) -> Use
     :return: The created user instance.
     """
     try:
-        user_data["birthday"] = datetime.strptime(user_data["birthday"], "%Y-%m-%d").date()
+        user_data["birthday"] = datetime.strptime(
+            user_data["birthday"], "%Y-%m-%d"
+        ).date()
     except Exception as ex:
         raise HTTPException(status_code=400, detail="Invalid date") from ex
 
@@ -52,6 +54,7 @@ def create_user(user_data: dict, session: Session = Depends(get_session)) -> Use
     session.commit()
     session.refresh(user)
     return user
+
 
 @router.get("/{user_id}")
 def get_user_id(user_id: int, session: Session = Depends(get_session)) -> dict:
@@ -63,16 +66,19 @@ def get_user_id(user_id: int, session: Session = Depends(get_session)) -> dict:
     """
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail=f"User with id '{user_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"User with id '{user_id}' not found!"
+        )
 
     user_json = user.model_dump()
     if user.team:
         user_json.update({"team": user.team.model_dump()})
     if user.bring_beer:
-        user_json.update({"bring_beer":user.bring_beer})
+        user_json.update({"bring_beer": user.bring_beer})
     if user.user_beer:
         user_json.update({"user_beer": user.user_beer})
     return user_json
+
 
 @router.get("/name/{user_name}")
 def get_user_name(user_name: str, session: Session = Depends(get_session)) -> dict:
@@ -94,7 +100,7 @@ def get_user_name(user_name: str, session: Session = Depends(get_session)) -> di
     if user.team:
         user_json.update({"team": user.team.model_dump()})
     if user.bring_beer:
-        user_json.update({"bring_beer":user.bring_beer})
+        user_json.update({"bring_beer": user.bring_beer})
     if user.user_beer:
         user_json.update({"user_beer": user.user_beer})
     return user_json
@@ -110,14 +116,19 @@ def delete_user(user_id: int, session: Session = Depends(get_session)) -> dict:
     """
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail=f"User with id '{user_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"User with id '{user_id}' not found!"
+        )
 
     session.delete(user)
     session.commit()
     return {"ok": True}
 
+
 @router.patch("/{user_id}")
-def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_session)) -> User:
+def update_user(
+    user_id: int, user: UserUpdate, session: Session = Depends(get_session)
+) -> User:
     """
     Updates the data of a user.
     :param user_id: The id of a user to be edited.
@@ -127,7 +138,9 @@ def update_user(user_id: int, user: UserUpdate, session: Session = Depends(get_s
     """
     user_db = session.get(User, user_id)
     if not user_db:
-        raise HTTPException(status_code=404, detail=f"User with id '{user_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"User with id '{user_id}' not found!"
+        )
 
     user_data = user.model_dump(exclude_unset=True)
     user_db.sqlmodel_update(user_data)

@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: Unittests of user routes.
 """
+
 from datetime import date
 
 import pytest
@@ -21,7 +22,7 @@ def test_get_public_user():
         birthday=date(1990, 1, 1),
         team_id=1,
         password="secret",
-        role="admin"
+        role="admin",
     )
 
     assert user.username == "testuser"

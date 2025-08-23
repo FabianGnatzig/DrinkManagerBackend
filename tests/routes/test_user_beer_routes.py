@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: Unittests of user beer routes.
 """
+
 from tests.helper_methods import create_user_beer, create_user, create_bring_beer
 
 
@@ -83,9 +84,7 @@ def test_update_user_beer_name(client_fixture):
     create_bring_beer(client_fixture)
     create_user_beer(client_fixture)
     new_id = 2
-    test_payload = {
-        "user_id": f"{new_id}"
-    }
+    test_payload = {"user_id": f"{new_id}"}
 
     response = client_fixture.patch("/userbeer/1", json=test_payload)
     assert response.status_code == 200

@@ -3,7 +3,9 @@ Created by Fabian Gnatzig
 
 Description: Helper methods for unittests
 """
+
 from fastapi.testclient import TestClient
+
 
 def create_beer(client: TestClient):
     """
@@ -16,11 +18,12 @@ def create_beer(client: TestClient):
         "beer_code": 1234,
         "brewery_id": 1,
         "alcohol": 0.1,
-        "volume": 0.2
+        "volume": 0.2,
     }
 
     response = client.post("/beer/add", json=test_payload)
     return response
+
 
 def create_brewery(client: TestClient):
     """
@@ -31,7 +34,7 @@ def create_brewery(client: TestClient):
     test_payload = {
         "name": "test_brewery",
         "city": "test_city",
-        "country": "test_country"
+        "country": "test_country",
     }
 
     response = client.post("/brewery/add", json=test_payload)
@@ -68,6 +71,7 @@ def create_user_beer(client: TestClient):
 
     response = client.post("/userbeer/add", json=test_payload)
     return response
+
 
 def create_user(client: TestClient):
     """
@@ -126,9 +130,7 @@ def create_team(client: TestClient):
     :param client: Test client.
     :return: Response from backend.
     """
-    test_payload = {
-        "name": "test_team"
-    }
+    test_payload = {"name": "test_team"}
 
     response = client.post("/team/add", json=test_payload)
     return response

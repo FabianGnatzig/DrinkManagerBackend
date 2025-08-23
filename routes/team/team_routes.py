@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: HTTP Routes of team.
 """
+
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Query, HTTPException
@@ -12,16 +13,14 @@ from dependencies import get_session
 from models.team_models import Team, TeamUpdate
 from models.user_models import get_public_user
 
-router = APIRouter(
-    prefix="/team",
-    tags=["Team"]
-)
+router = APIRouter(prefix="/team", tags=["Team"])
+
 
 @router.get("/all")
 def read_all_teams(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)]=100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[Team]:
     """
     Reads all team instances.
@@ -33,6 +32,7 @@ def read_all_teams(
     statement = select(Team).offset(offset).limit(limit)
     teams = session.exec(statement).all()
     return teams
+
 
 @router.post("/add")
 def create_team(team: Team, session: Session = Depends(get_session)) -> Team:
@@ -50,6 +50,7 @@ def create_team(team: Team, session: Session = Depends(get_session)) -> Team:
     session.refresh(team)
     return team
 
+
 @router.get("/{team_id}")
 def read_team_id(team_id: int, session: Session = Depends(get_session)) -> dict:
     """
@@ -61,11 +62,13 @@ def read_team_id(team_id: int, session: Session = Depends(get_session)) -> dict:
     team = session.get(Team, team_id)
 
     if not team:
-        raise HTTPException(status_code=404, detail=f"Team with id '{team_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Team with id '{team_id}' not found!"
+        )
 
     team_json = team.model_dump()
     if team.users:
-        public_users=[]
+        public_users = []
         for user in team.users:
             public_users.append(get_public_user(user))
         team_json.update({"users": public_users})
@@ -87,7 +90,8 @@ def read_team_name(team_name: str, session: Session = Depends(get_session)) -> d
         team = session.exec(statement).one()
     except Exception as ex:
         raise HTTPException(
-            status_code=404, detail=f"Team with name '{team_name}' not found!") from ex
+            status_code=404, detail=f"Team with name '{team_name}' not found!"
+        ) from ex
 
     team_json = team.model_dump()
     if team.users:
@@ -99,6 +103,7 @@ def read_team_name(team_name: str, session: Session = Depends(get_session)) -> d
         team_json.update({"seasons": team.seasons})
     return team_json
 
+
 @router.delete("/{team_id}")
 def delete_team(team_id: int, session: Session = Depends(get_session)):
     """
@@ -109,7 +114,9 @@ def delete_team(team_id: int, session: Session = Depends(get_session)):
     """
     team = session.get(Team, team_id)
     if not team:
-        raise HTTPException(status_code=404, detail=f"Team with id '{team_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Team with id '{team_id}' not found!"
+        )
 
     session.delete(team)
     session.commit()
@@ -118,9 +125,7 @@ def delete_team(team_id: int, session: Session = Depends(get_session)):
 
 @router.patch("/{team_id}")
 def update_team(
-        team_id: int,
-        team: TeamUpdate,
-        session: Session = Depends(get_session)
+    team_id: int, team: TeamUpdate, session: Session = Depends(get_session)
 ) -> Team:
     """
     Updates the data of a team.
@@ -131,7 +136,9 @@ def update_team(
     """
     team_db = session.get(Team, team_id)
     if not team_db:
-        raise HTTPException(status_code=404, detail=f"Team with id '{team_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Team with id '{team_id}' not found!"
+        )
 
     team_data = team.model_dump(exclude_unset=True)
     team_db.sqlmodel_update(team_data)
