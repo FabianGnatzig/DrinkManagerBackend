@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 
 Description: HTTP routes of brewerys.
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, HTTPException
@@ -11,16 +12,14 @@ from sqlmodel import Session, select
 from dependencies import get_session
 from models.brewery_models import Brewery, BreweryUpdate
 
-router = APIRouter(
-    prefix="/brewery",
-    tags=["Brewery"]
-)
+router = APIRouter(prefix="/brewery", tags=["Brewery"])
+
 
 @router.get("/all")
 def read_brewer(
-        session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: Annotated[int, Query(le=100)] = 100,
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> list:
     """
     Reads all brewery instances.
@@ -40,8 +39,11 @@ def read_brewer(
         breweries_list.append(brewery_data)
     return breweries_list
 
+
 @router.post("/add")
-def create_brewery(brewery: Brewery, session: Session = Depends(get_session)) -> Brewery:
+def create_brewery(
+    brewery: Brewery, session: Session = Depends(get_session)
+) -> Brewery:
     """
     Creates a brewery instance.
     :param brewery: The brewery instance.
@@ -55,8 +57,9 @@ def create_brewery(brewery: Brewery, session: Session = Depends(get_session)) ->
     session.refresh(brewery)
     return brewery
 
+
 @router.get("/{brewery_id}")
-def read_brewery_id(brewery_id: int, session:  Session = Depends(get_session)) -> dict:
+def read_brewery_id(brewery_id: int, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a brewery with id.
     :param brewery_id: The id of a beer to search for.
@@ -66,7 +69,9 @@ def read_brewery_id(brewery_id: int, session:  Session = Depends(get_session)) -
     brewery = session.get(Brewery, brewery_id)
 
     if not brewery:
-        raise HTTPException(status_code=404, detail=f"Brewery with id '{brewery_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Brewery with id '{brewery_id}' not found!"
+        )
 
     brewery_json = brewery.model_dump()
     if brewery.beers:
@@ -74,8 +79,11 @@ def read_brewery_id(brewery_id: int, session:  Session = Depends(get_session)) -
 
     return brewery_json
 
+
 @router.get("/name/{brewery_name}")
-def read_brewery_name(brewery_name: str, session: Session = Depends(get_session)) -> dict:
+def read_brewery_name(
+    brewery_name: str, session: Session = Depends(get_session)
+) -> dict:
     """
     Searches for a brewery with name.
     :param brewery_name: The name of a brewery to search for.
@@ -88,13 +96,15 @@ def read_brewery_name(brewery_name: str, session: Session = Depends(get_session)
         brewery = session.exec(statement).one()
     except Exception as ex:
         raise HTTPException(
-            status_code=404, detail=f"Brewery with name '{brewery_name}' not found!") from ex
+            status_code=404, detail=f"Brewery with name '{brewery_name}' not found!"
+        ) from ex
 
     brewery_json = brewery.model_dump()
     if brewery.beers:
         brewery_json.update({"beers": brewery.beers})
 
     return brewery_json
+
 
 @router.delete("/{brewery_id}")
 def delete_brewery(brewery_id: int, session: Session = Depends(get_session)):
@@ -107,17 +117,18 @@ def delete_brewery(brewery_id: int, session: Session = Depends(get_session)):
     brewery = session.get(Brewery, brewery_id)
 
     if not brewery:
-        raise HTTPException(status_code=404, detail=f"Brewery with id '{brewery_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Brewery with id '{brewery_id}' not found!"
+        )
 
     session.delete(brewery)
     session.commit()
     return {"ok": True}
 
+
 @router.patch("/{brewery_id}")
 def update_brewery(
-        brewery_id: int,
-        brewery: BreweryUpdate,
-        session: Session = Depends(get_session)
+    brewery_id: int, brewery: BreweryUpdate, session: Session = Depends(get_session)
 ):
     """
     Updates the data of a brewery.
@@ -129,7 +140,9 @@ def update_brewery(
     brewery_db = session.get(Brewery, brewery_id)
 
     if not brewery_db:
-        raise HTTPException(status_code=404, detail=f"Brewery with id '{brewery_id}' not found!")
+        raise HTTPException(
+            status_code=404, detail=f"Brewery with id '{brewery_id}' not found!"
+        )
 
     brewery_data = brewery.model_dump(exclude_unset=True)
     brewery_db.sqlmodel_update(brewery_data)
