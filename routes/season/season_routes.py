@@ -53,7 +53,7 @@ def get_season_id(season_id: int, session: Session = Depends(get_session)) -> di
 
     season_json = season.model_dump()
     if season.team:
-        season_json.update({"team":season.team.model_dump()})
+        season_json.update({"team": season.team.model_dump()})
     if season.events:
         season_json.update({"events": season.events})
     return season_json
@@ -73,12 +73,11 @@ def get_season_name(season_name: str, session: Session = Depends(get_session)) -
         raise HTTPException(
             status_code=404, detail=f"Season with name '{season_name}' not found!") from ex
 
-    if not season:
-        raise HTTPException(status_code=404, detail=f"Season with name '{season_name}' not found!")
-
     season_json = season.model_dump()
     if season.team:
         season_json.update({"team": season.team.model_dump()})
+    if season.events:
+        season_json.update({"events": season.events})
     return season_json
 
 @router.post("/add")
@@ -90,7 +89,7 @@ def create_season(season: Season, session: Session = Depends(get_session)) -> Se
     :return: The created season instance.
     """
     if not (season.name and season.team_id):
-        raise HTTPException(status_code=400, detail="Incomplete season")
+        raise HTTPException(status_code=400, detail="Invalid season")
 
     session.add(season)
     session.commit()

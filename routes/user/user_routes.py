@@ -69,7 +69,7 @@ def get_user_id(user_id: int, session: Session = Depends(get_session)) -> dict:
     if user.team:
         user_json.update({"team": user.team.model_dump()})
     if user.bring_beer:
-        user_json.update({"brig_beer":user.bring_beer})
+        user_json.update({"bring_beer":user.bring_beer})
     if user.user_beer:
         user_json.update({"user_beer": user.user_beer})
     return user_json
@@ -78,7 +78,7 @@ def get_user_id(user_id: int, session: Session = Depends(get_session)) -> dict:
 def get_user_name(user_name: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a user with last name.
-    :param user_name: The last name of a user to search for.
+    :param user_name: The username of a user to search for.
     :param session: The db session.
     :return: Dictionary with user and team.
     """
@@ -89,9 +89,6 @@ def get_user_name(user_name: str, session: Session = Depends(get_session)) -> di
         raise HTTPException(
             status_code=404, detail=f"User with last name '{user_name}' not found!"
         ) from ex
-
-    if not user:
-        raise HTTPException(status_code=404, detail=f"User with last name '{user_name}' not found!")
 
     user_json = user.model_dump()
     if user.team:

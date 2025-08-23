@@ -68,9 +68,6 @@ def get_event_name(event_name: str, session: Session = Depends(get_session)) -> 
         raise HTTPException(
             status_code=404, detail=f"Event with name '{event_name}' not found!") from ex
 
-    if not event:
-        raise HTTPException(status_code=404, detail=f"Event with name '{event_name}' not found!")
-
     event_json= event.model_dump()
     if event.season:
         event_json.update({"season": event.season.model_dump()})

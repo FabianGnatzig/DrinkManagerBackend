@@ -11,7 +11,7 @@ from sqlmodel import Session, select
 from dependencies import get_session
 from models.beer_models import BringBeer, UserBeer
 from models.user_models import User
-from routers.beer.user_beer_routes import create_beer
+from routes.beer.user_beer_routes import create_beer
 
 router = APIRouter(
     prefix="/service",
