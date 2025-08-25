@@ -19,3 +19,9 @@ All notable changes to this project will be documented in this file.
 ## [v0.3.0] - 2025-08-23
 ### Added
 - Added black formatter
+
+## [v0.3.1] - 2025-08-25
+### Added
+- MIT LICENCE
+### Changed
+- Trigger for creating the Docker-image on main
