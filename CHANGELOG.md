@@ -25,3 +25,8 @@ All notable changes to this project will be documented in this file.
 - MIT LICENCE
 ### Changed
 - Trigger for creating the Docker-image on main
+
+## [v0.3.2] - 2025-08-26
+### Added
+- Existing Diagram
+- Extend existing diagram by class diagram
