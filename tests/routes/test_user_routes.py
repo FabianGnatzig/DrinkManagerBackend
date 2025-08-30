@@ -25,9 +25,9 @@ def test_read_user(client_fixture):
     assert len(response.json()) == 1
 
 
-def test_read_user_id(client_fixture):
+def test_read_user_id_as_admin(client_fixture, get_admin_token):
     """
-    Test read user by id.
+    Test read user by id with admin authentication.
     :param client_fixture: Test client.
     :return: None
     """
@@ -37,7 +37,9 @@ def test_read_user_id(client_fixture):
     create_user_beer(client_fixture)
     create_team(client_fixture)
 
-    response = client_fixture.get("/user/1")
+    response = client_fixture.get(
+        "/user/1", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 200
     assert response.json()["username"] == "name"
     assert response.json()["team"]
@@ -45,9 +47,31 @@ def test_read_user_id(client_fixture):
     assert response.json()["user_beer"]
 
 
-def test_read_wrong_user_id(client_fixture):
+def test_read_user_id_as_user(client_fixture, get_user_token):
     """
-    Test read wrong user by id.
+    Test read user by id with admin authentication.
+    :param client_fixture: Test client.
+    :return: None
+    """
+    create_user(client_fixture)
+    create_bring_beer(client_fixture)
+    create_beer(client_fixture)
+    create_user_beer(client_fixture)
+    create_team(client_fixture)
+
+    response = client_fixture.get(
+        "/user/1", headers={"Authorization": f"Bearer {get_user_token}"}
+    )
+    assert response.status_code == 200
+    assert response.json()["username"] == "name"
+    assert response.json()["team"]
+    assert response.json()["bring_beer"]
+    assert response.json()["user_beer"]
+
+
+def test_read_wrong_user_id(client_fixture, get_admin_token):
+    """
+    Test read not existing user by id as admin.
     :param client_fixture: Test client.
     :return: None
     """
@@ -55,9 +79,29 @@ def test_read_wrong_user_id(client_fixture):
 
     create_user(client_fixture)
 
-    response = client_fixture.get(f"/user/{wrong_id}")
+    response = client_fixture.get(
+        f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == f"User with id '{wrong_id}' not found!"
+
+
+def test_auth_read_wrong_user_id(client_fixture, get_user_token):
+    """
+    Test read user by id as wrong user.
+    :param client_fixture: Test client.
+    :return: None
+    """
+    wrong_id = "2"
+
+    create_user(client_fixture)
+    create_user(client_fixture)
+
+    response = client_fixture.get(
+        f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_user_token}"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == f"You try to access an other user"
 
 
 def test_read_user_name(client_fixture):

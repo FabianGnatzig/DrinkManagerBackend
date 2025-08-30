@@ -91,16 +91,11 @@ def check_birthday(session: Session = Depends(get_session)):
     users = session.exec(select(User)).all()
 
     for user in users:
-        print(datetime.today().date(), user.birthday)
-        if user.birthday.day != datetime.today().day:
-            continue
-
-        if user.birthday.month != datetime.today().month:
-            continue
-
-        print("created")
-
-        user_beer = UserBeer(user_id=user.id, kind="birthday")
-        create_beer(user_beer, session=session)
+        if (
+            user.birthday.day == datetime.today().day
+            and user.birthday.month == datetime.today().month
+        ):
+            user_beer = UserBeer(user_id=user.id, kind="birthday")
+            create_beer(user_beer, session=session)
 
     return True

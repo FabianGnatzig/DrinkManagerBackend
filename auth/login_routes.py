@@ -2,6 +2,7 @@
 Created by Fabian Gnatzig
 Description: Route and methods for auth.
 """
+
 import jwt
 from datetime import timedelta, datetime, timezone
 from typing import Annotated
@@ -15,8 +16,8 @@ from auth.login_classes import Token
 from routes.user.user_routes import get_user_name
 
 
-
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """
@@ -43,19 +44,26 @@ def authenticate_user(session: Session, username: str, password: str):
     :param password: Password of user that is logging in.
     :return: User if username and password is valid.
     """
+    exception = HTTPException(
+        status_code=401,
+        detail="Incorrect username or password",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         user = get_user_name(username, session)
         if pwd_context.verify(password, user["password"]):
             return user
-        return
-    except Exception:
-        return
+
+    except HTTPException:
+        raise exception
+
+    raise exception
 
 
 @router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
 ) -> Token:
     """
     Authenticate the user from auth.
@@ -64,20 +72,15 @@ async def login_for_access_token(
     :return: Encoded JWT-Token.
     """
     user = authenticate_user(session, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
     access_token_expires = timedelta(hours=24)
     access_token = create_access_token(
         data={
             "username": user["username"],
             "user_id": user["id"],
             "team_ids": user["team"]["id"],
-            "role": user["role"]
+            "role": user["role"],
         },
-        expires_delta=access_token_expires
+        expires_delta=access_token_expires,
     )
     return Token(access_token=access_token, token_type="bearer")

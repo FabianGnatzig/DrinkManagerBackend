@@ -58,12 +58,3 @@ app.include_router(bring_beer_router)
 app.include_router(user_beer_router)
 app.include_router(service_router)
 app.include_router(login_router)
-
-
-@app.get("/")
-async def root(token: Annotated[str, Depends(oauth2_scheme)]):
-    """
-    Root route of app.
-    :return: Test data.
-    """
-    return {"message": "HelloWorld"}
