@@ -1,6 +1,5 @@
 """
 Created by Fabian Gnatzig
-
 Description: Helper methods for unittests
 """
 

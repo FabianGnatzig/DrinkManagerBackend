@@ -1,7 +1,6 @@
 """
 Created by Fabian Gnatzig
-
-Description:
+Description: Methods and fixtures for unittests.
 """
 
 import pytest

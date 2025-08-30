@@ -1,5 +1,3 @@
 """
 Created by Fabian Gnatzig
-
-
 """

@@ -1,7 +1,6 @@
 """
 Created by Fabian Gnatzig
-
-Description:
+Description: HTTP routes of service.
 """
 
 from datetime import datetime

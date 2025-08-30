@@ -1,7 +1,6 @@
 """
 Created by Fabian Gnatzig
-
-Description: HTTP routes of brewerys.
+Description: HTTP routes of brewery's.
 """
 
 from typing import Annotated

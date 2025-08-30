@@ -1,6 +1,5 @@
 """
 Created by Fabian Gnatzig
-
 Description: HTTP Routes of team.
 """
 

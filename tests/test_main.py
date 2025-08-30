@@ -1,6 +1,6 @@
 """
 Created by Fabian Gnatzig
-Description:
+Description: Test main functions.
 """
 
 from sqlmodel import create_engine, inspect, Session

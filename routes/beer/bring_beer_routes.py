@@ -1,6 +1,5 @@
 """
 Created by Fabian Gnatzig
-
 Description: Http routes of bring beers.
 """
 
