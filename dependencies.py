@@ -7,6 +7,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
 from sqlmodel import Session, create_engine, SQLModel
 
 load_dotenv()
@@ -14,7 +15,8 @@ load_dotenv()
 DB = os.getenv("DATABASE")
 
 engine = create_engine(DB)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
 SECRET_KEY = os.getenv("HASH_KEY")

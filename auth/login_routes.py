@@ -1,6 +1,6 @@
 """
 Created by Fabian Gnatzig
-Description: Route and methods for login.
+Description: Route and methods for auth.
 """
 import jwt
 from datetime import timedelta, datetime, timezone
@@ -10,13 +10,13 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
-from dependencies import get_session, SECRET_KEY, ALGORITHM
-from login.login_classes import Token
+from dependencies import get_session, SECRET_KEY, ALGORITHM, pwd_context
+from auth.login_classes import Token
 from routes.user.user_routes import get_user_name
 
 
 
-router = APIRouter(prefix="/login", tags=["Login"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """
@@ -44,38 +44,12 @@ def authenticate_user(session: Session, username: str, password: str):
     :return: User if username and password is valid.
     """
     try:
-        #ToDo: Add encryption
         user = get_user_name(username, session)
-        if user["password"] == password:
+        if pwd_context.verify(password, user["password"]):
             return user
         return
     except Exception:
         return
-
-
-def auth_is_user(user_id: int, jwt_token: str):
-    """
-    Helper method for authenticate if the user access its data.
-    :param user_id: ID of user that will be accessed.
-    :param jwt_token: JWT-Token of the user that access.
-    :return: True if it is the user, False if not.
-    """
-    decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-    if user_id != decoded_jwt["user_id"]:
-        return False
-    return True
-
-
-def auth_is_admin(jwt_token: str):
-    """
-    Helper method for authenticate the admin.
-    :param jwt_token: JWT-Token of the user that access.
-    :return: True if it is the user, False if not.
-    """
-    decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-    if decoded_jwt["role"] != "admin":
-        return False
-    return True
 
 
 @router.post("/token")
@@ -84,8 +58,8 @@ async def login_for_access_token(
     session: Session = Depends(get_session)
 ) -> Token:
     """
-    Authenticate the user from login.
-    :param form_data: Data of the login form.
+    Authenticate the user from auth.
+    :param form_data: Data of the auth form.
     :param session: The db session.
     :return: Encoded JWT-Token.
     """
@@ -107,4 +81,3 @@ async def login_for_access_token(
         expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
-

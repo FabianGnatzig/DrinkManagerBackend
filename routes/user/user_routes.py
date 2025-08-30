@@ -9,8 +9,8 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 
-from dependencies import get_session, oauth2_scheme
-from login.login_routes import auth_is_user, auth_is_admin
+from dependencies import get_session, oauth2_scheme, pwd_context
+from auth.auth_methods import auth_is_user, auth_is_admin
 from models.user_models import User, UserUpdate
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -42,13 +42,14 @@ def create_user(user_data: dict, session: Session = Depends(get_session)) -> Use
     :param session: The db session.
     :return: The created user instance.
     """
-    # ToDo: Add encryption
     try:
         user_data["birthday"] = datetime.strptime(
             user_data["birthday"], "%Y-%m-%d"
         ).date()
     except Exception as ex:
         raise HTTPException(status_code=400, detail="Invalid date") from ex
+
+    user_data["password"] = pwd_context.hash(user_data["password"])
 
     user = User(**user_data)
     session.add(user)

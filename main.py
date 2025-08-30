@@ -10,7 +10,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 
-from login.login_routes import router as login_router
+from auth.login_routes import router as login_router
 from routes import (
     beer_router,
     bring_beer_router,
