@@ -3,13 +3,14 @@ Created by Fabian Gnatzig
 Description: Route and methods for auth.
 """
 
+from datetime import timedelta, datetime, timezone
+from typing import Annotated
+
 import jwt
 
-from datetime import timedelta, datetime, timezone
 from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
-from typing import Annotated
 
 from dependencies import get_session, SECRET_KEY, ALGORITHM, pwd_context
 from auth.login_classes import Token
