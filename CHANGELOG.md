@@ -2,23 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v0.0.1] - 2025-04-15
-### Added
-- Dockerized frontend
-- Custom domain support
 
-## [v0.1.0] - 2025-08-21
+## [v0.4.0] - 2025-08-30
 ### Added
-- Setup for external DB. Environment variable DATABASE in Dockercontainer for DB setup.
-- Added changelog CI.
+- Authentication via JWT-Tokens
+- Add password encryption
 
-## [v0.2.0] - 2025-08-22
-### Added
-- Added unittest
 
-## [v0.3.0] - 2025-08-23
+## [v0.3.2] - 2025-08-26
 ### Added
-- Added black formatter
+- Existing Diagram
+- Extend existing diagram by class diagram
+
 
 ## [v0.3.1] - 2025-08-25
 ### Added
@@ -26,7 +21,24 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Trigger for creating the Docker-image on main
 
-## [v0.3.2] - 2025-08-26
+
+## [v0.3.0] - 2025-08-23
 ### Added
-- Existing Diagram
-- Extend existing diagram by class diagram
+- Added black formatter
+- 
+
+## [v0.2.0] - 2025-08-22
+### Added
+- Added unittest
+
+
+## [v0.1.0] - 2025-08-21
+### Added
+- Setup for external DB. Environment variable DATABASE in Docker container for DB setup.
+- Added changelog CI.
+
+
+## [v0.0.1] - 2025-04-15
+### Added
+- Dockerized frontend
+- Custom domain support

@@ -1,7 +1,6 @@
 """
 Created by Fabian Gnatzig
-
-Description: Models of brewerys.
+Description: Models of brewery's.
 """
 
 from typing import List, TYPE_CHECKING

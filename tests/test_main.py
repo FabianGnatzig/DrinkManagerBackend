@@ -1,22 +1,12 @@
 """
 Created by Fabian Gnatzig
-Description:
+Description: Test main functions.
 """
 
 from sqlmodel import create_engine, inspect, Session
 from dependencies import create_db, get_session
 
 TABLES = ["beer", "brewery", "bringbeer", "event", "season", "team", "user", "userbeer"]
-
-
-def test_root(client_fixture):
-    """
-    Tests the root route.
-    :param client_fixture: Test client.
-    :return: None
-    """
-    response = client_fixture.get("/")
-    assert response.status_code == 200
 
 
 def test_create_db(monkeypatch):

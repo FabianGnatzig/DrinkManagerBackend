@@ -1,6 +1,5 @@
 """
 Created by Fabian Gnatzig
-
 Description: Main app of the beer backend.
 """
 
@@ -11,7 +10,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 
-
+from auth.login_routes import router as login_router
 from routes import (
     beer_router,
     bring_beer_router,
@@ -40,6 +39,8 @@ async def lifespan(_app: FastAPI):  # pragma: no cover
 
 
 app = FastAPI(lifespan=lifespan)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://bier.gnatzig.eu", "http://localhost:5173", "*"],
@@ -56,12 +57,4 @@ app.include_router(event_router)
 app.include_router(bring_beer_router)
 app.include_router(user_beer_router)
 app.include_router(service_router)
-
-
-@app.get("/")
-async def root():
-    """
-    Root route of app.
-    :return: Test data.
-    """
-    return {"message": "HelloWorld"}
+app.include_router(login_router)

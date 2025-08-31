@@ -1,6 +1,5 @@
 """
 Created by Fabian Gnatzig
-
 Description: HTTP Routes of user.
 """
 
@@ -10,7 +9,8 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 
-from dependencies import get_session
+from dependencies import get_session, oauth2_scheme, pwd_context
+from auth.auth_methods import auth_is_user, auth_is_admin
 from models.user_models import User, UserUpdate
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -49,6 +49,8 @@ def create_user(user_data: dict, session: Session = Depends(get_session)) -> Use
     except Exception as ex:
         raise HTTPException(status_code=400, detail="Invalid date") from ex
 
+    user_data["password"] = pwd_context.hash(user_data["password"])
+
     user = User(**user_data)
     session.add(user)
     session.commit()
@@ -57,18 +59,27 @@ def create_user(user_data: dict, session: Session = Depends(get_session)) -> Use
 
 
 @router.get("/{user_id}")
-def get_user_id(user_id: int, session: Session = Depends(get_session)) -> dict:
+def get_user_id(
+    user_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+) -> dict:
     """
     Searches for a user with id.
     :param user_id: The id of a user to search for.
+    :param token: Authentication token.
     :param session: The db session.
     :return: Dictionary with user and team.
     """
     user = session.get(User, user_id)
+
     if not user:
         raise HTTPException(
             status_code=404, detail=f"User with id '{user_id}' not found!"
         )
+
+    if not (auth_is_user(user.id, token) or auth_is_admin(token)):
+        raise HTTPException(status_code=401, detail="You try to access an other user")
 
     user_json = user.model_dump()
     if user.team:
