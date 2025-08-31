@@ -97,7 +97,12 @@ def test_check_birthday(client_fixture):
     assert response.json()[0]["user_id"] == 3
 
 
-def test_setup_brewery_and_beer(client_fixture, session):
+def test_setup_brewery_and_beer(client_fixture):
+    """
+    Test the data setup for brewery and beer.
+    :param client_fixture: Test client.
+    :return: None
+    """
     client_fixture.get("/service/setup")
     response = client_fixture.get("/brewery/all")
     assert response.status_code == 200

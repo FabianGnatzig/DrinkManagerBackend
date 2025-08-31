@@ -122,7 +122,7 @@ def setup_beer(session: Session):
     :param session: DB session.
     :return: None
     """
-    with open("data/beers.json") as beer_file:
+    with open("data/beers.json", encoding="utf-8") as beer_file:
         beers = json.load(beer_file)
 
         for beer_data in beers["beers"]:
@@ -138,7 +138,7 @@ def setup_brewery(session: Session):
     :param session: DB session.
     :return: None
     """
-    with open("data/brewerys.json") as brewery_file:
+    with open("data/brewerys.json", encoding="utf-8") as brewery_file:
         brewery = json.load(brewery_file)
 
         for brewery_data in brewery["brewerys"]:
