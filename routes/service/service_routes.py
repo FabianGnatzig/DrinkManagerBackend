@@ -3,15 +3,19 @@ Created by Fabian Gnatzig
 Description: HTTP routes of service.
 """
 
+import json
 from datetime import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
 from dependencies import get_session
-from models.beer_models import BringBeer, UserBeer
+from models.beer_models import BringBeer, UserBeer, Beer
+from models.brewery_models import Brewery
 from models.user_models import User
-from routes.beer.user_beer_routes import create_beer
+from routes.beer.beer_routes import read_beer_name, create_beer
+from routes.beer.user_beer_routes import create_user_beer
+from routes.brewery.brewery_routes import read_brewery_name, create_brewery
 
 router = APIRouter(prefix="/service", tags=["Service"])
 
@@ -96,6 +100,49 @@ def check_birthday(session: Session = Depends(get_session)):
             and user.birthday.month == datetime.today().month
         ):
             user_beer = UserBeer(user_id=user.id, kind="birthday")
-            create_beer(user_beer, session=session)
+            create_user_beer(user_beer, session=session)
 
     return True
+
+
+@router.get("/setup")
+def setup_brewery_and_beer(session: Session = Depends(get_session)):
+    """
+    Creates brewery and beer from data.
+    :param session: DB session.
+    :return: None
+    """
+    setup_brewery(session)
+    setup_beer(session)
+
+
+def setup_beer(session: Session):
+    """
+    Setup beer from beer.json.
+    :param session: DB session.
+    :return: None
+    """
+    with open("data/beers.json", encoding="utf-8") as beer_file:
+        beers = json.load(beer_file)
+
+        for beer_data in beers["beers"]:
+            try:
+                read_beer_name(beer_data["name"], session)
+            except HTTPException:
+                create_beer(Beer(**beer_data), session)
+
+
+def setup_brewery(session: Session):
+    """
+    Setup brewery from brewery.json.
+    :param session: DB session.
+    :return: None
+    """
+    with open("data/brewerys.json", encoding="utf-8") as brewery_file:
+        brewery = json.load(brewery_file)
+
+        for brewery_data in brewery["brewerys"]:
+            try:
+                read_brewery_name(brewery_data["name"], session)
+            except HTTPException:
+                create_brewery(Brewery(**brewery_data), session)

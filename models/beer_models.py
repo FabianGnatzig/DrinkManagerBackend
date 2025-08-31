@@ -19,7 +19,7 @@ class BeerBase(SQLModel):
     """
 
     name: str = Field(index=True)
-    beer_code: int = Field(index=True)
+    beer_code: str = Field(index=True)
     brewery_id: int = Field(default=None, foreign_key="brewery.id")
     alcohol: float = 0.0
     volume: float = 0.0
@@ -41,7 +41,7 @@ class BeerUpdate(BeerBase):
     """
 
     name: str | None = None
-    beer_code: int | None = None
+    beer_code: str | None = None
     brewery_id: int | None = None
     alcohol: float | None = None
     volume: float | None = None

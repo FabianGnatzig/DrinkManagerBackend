@@ -33,7 +33,7 @@ def read_user_beers(
 
 
 @router.post("/add")
-def create_beer(
+def create_user_beer(
     user_beer: UserBeer, session: Session = Depends(get_session)
 ) -> UserBeer:
     """

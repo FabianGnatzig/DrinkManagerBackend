@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.4.1] - 2025-08-31
+### Added
+- Service route for data setup
+### Changed
+- beer-code is now type string
+
+
 ## [v0.4.0] - 2025-08-30
 ### Added
 - Authentication via JWT-Tokens
@@ -25,7 +32,7 @@ All notable changes to this project will be documented in this file.
 ## [v0.3.0] - 2025-08-23
 ### Added
 - Added black formatter
-- 
+
 
 ## [v0.2.0] - 2025-08-22
 ### Added
