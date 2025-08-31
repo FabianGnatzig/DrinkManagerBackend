@@ -1,0 +1,116 @@
+{
+  "beers": [
+    {
+      "name": "3-Korn-Hefeweizen",
+      "beer_code": "42127437",
+      "brewery_id": 1,
+      "alcohol": 5.1,
+      "volume": 0.5
+    },
+    {
+      "name": "Mai-Bock",
+      "beer_code": "4029257012372",
+      "brewery_id": 1,
+      "alcohol": 7.1,
+      "volume": 0.5
+    },
+    {
+      "name": "Maerzen",
+      "beer_code": "42063094",
+      "brewery_id": 1,
+      "alcohol": 6.1,
+      "volume": 0.5
+    },
+    {
+      "name": "Ulrichsbier",
+      "beer_code": "42045762",
+      "brewery_id": 1,
+      "alcohol": 5.3,
+      "volume": 0.33
+    },
+    {
+      "name": "Weihnachtsbier",
+      "beer_code": "42071655",
+      "brewery_id": 1,
+      "alcohol": 5.8,
+      "volume": 0.5
+    },
+    {
+      "name": "Hefetrueb Original",
+      "beer_code": "9028800148259",
+      "brewery_id": 2,
+      "alcohol": 5.1,
+      "volume": 0.5
+    },
+    {
+      "name": "Helles Hefeweizen",
+      "beer_code": "4030439001008",
+      "brewery_id": 3,
+      "alcohol": 5.2,
+      "volume": 0.5
+    },
+    {
+      "name": "Naturradler",
+      "beer_code": "90288104",
+      "brewery_id": 4,
+      "alcohol": 2.0,
+      "volume": 0.5
+    },
+    {
+      "name": "Edel-Pils",
+      "beer_code": "4022315001240",
+      "brewery_id": 5,
+      "alcohol": 4.9,
+      "volume": 0.33
+    },
+    {
+      "name": "Festbier",
+      "beer_code": "4022315001127",
+      "brewery_id": 5,
+      "alcohol": 5.6,
+      "volume": 0.5
+    },
+    {
+      "name": "Spezial",
+      "beer_code": "4022315001134",
+      "brewery_id": 5,
+      "alcohol": 5.4,
+      "volume": 0.5
+    },
+    {
+      "name": "Dunkel",
+      "beer_code": "4003304122009",
+      "brewery_id": 6,
+      "alcohol": 5.1,
+      "volume": 0.5
+    },
+    {
+      "name": "Feinherbes Pilsner",
+      "beer_code": "41058145",
+      "brewery_id": 7,
+      "alcohol": 4.9,
+      "volume": 0.5
+    },
+    {
+      "name": "Hell",
+      "beer_code": "4010223013110",
+      "brewery_id": 8,
+      "alcohol": 4.9,
+      "volume": 0.5
+    },
+    {
+      "name": "Weissbier 0,0",
+      "beer_code": "4066600242918",
+      "brewery_id": 9,
+      "alcohol": 0.0,
+      "volume": 0.5
+    },
+    {
+      "name": "Chiemseer Hell",
+      "beer_code": "4260248223616",
+      "brewery_id": 10,
+      "alcohol": 4.8,
+      "volume": 0.5
+    }
+  ]
+}

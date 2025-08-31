@@ -65,7 +65,7 @@ def test_create_beer(client_fixture):
     """
     response = create_beer(client_fixture)
     assert response.status_code == 200
-    assert response.json()["beer_code"] == 1234
+    assert response.json()["beer_code"] == "1234"
     assert response.json()["volume"] == 0.2
     assert response.json()["id"] == 1
 
@@ -93,7 +93,7 @@ def test_read_beer_id(client_fixture):
 
     response = client_fixture.get("/beer/1")
     assert response.status_code == 200
-    assert response.json()["beer_code"] == 1234
+    assert response.json()["beer_code"] == "1234"
     assert response.json()["volume"] == 0.2
     assert response.json()["brewery"]
     assert response.json()["bring_beer"]
@@ -123,7 +123,7 @@ def test_read_beer_name(client_fixture):
     create_beer(client_fixture)
 
     response = client_fixture.get("/beer/name/test_beer")
-    assert response.json()["beer_code"] == 1234
+    assert response.json()["beer_code"] == "1234"
     assert response.json()["volume"] == 0.2
     assert response.json()["brewery"]
     assert response.json()["bring_beer"]
@@ -181,7 +181,7 @@ def test_update_beer_name(client_fixture):
     response = client_fixture.patch("/beer/1", json=test_payload)
     assert response.status_code == 200
     assert response.json()["name"] == new_name
-    assert response.json()["beer_code"] == 1234
+    assert response.json()["beer_code"] == "1234"
     assert response.json()["volume"] == 0.2
 
 

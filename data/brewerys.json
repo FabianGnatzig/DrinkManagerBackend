@@ -1,0 +1,54 @@
+{
+  "brewerys": [
+    {
+      "name":    "Berg Brauerei",
+      "city":    "Ehingen an der Donau",
+      "country": "Germany"
+    },
+    {
+      "name":    "Edelweiss",
+      "city":    "Linz",
+      "country": "Austria"
+    },
+    {
+      "name":    "Gutmann",
+      "city":    "Titting",
+      "country": "Germany"
+    },
+    {
+      "name":    "Goesser",
+      "city":    "Linz",
+      "country": "Austria"
+    },
+    {
+      "name":    "Koenigsbraeu",
+      "city":    "Oggenhausen",
+      "country": "Germany"
+    },
+    {
+      "name":    "Koenig Ludwig",
+      "city":    "Fuerstenfeldbruck",
+      "country": "Germany"
+    },
+    {
+      "name":    "Krostitzer",
+      "city":    "Krostitz",
+      "country": "Germany"
+    },
+    {
+      "name":    "Kosterbrauerei Weltenburg",
+      "city":    "Regensburg",
+      "country": "Germany"
+    },
+    {
+      "name":    "Paulaner",
+      "city":    "Muenchen",
+      "country": "Germany"
+    },
+    {
+      "name":    "Rosenheimer Spezialitaetenbrauerei",
+      "city":    "Rosenheim",
+      "country": "Germany"
+    }
+  ]
+}
