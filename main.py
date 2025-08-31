@@ -23,7 +23,7 @@ from routes import (
     service_router,
 )
 
-from dependencies import get_session, create_db, oauth2_scheme
+from dependencies import get_session, create_db
 
 SessionDep = Annotated[Session, Depends(get_session)]
 

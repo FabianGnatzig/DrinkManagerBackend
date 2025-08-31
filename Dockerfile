@@ -7,4 +7,7 @@ COPY . .
 ARG DATABASE
 ENV DATABASE=${DATABASE}
 
+ARG HASH_KEY
+ENV HASH_KEY=${HASH_KEY}
+
 CMD ["fastapi", "run", "main.py", "--port", "6969"]

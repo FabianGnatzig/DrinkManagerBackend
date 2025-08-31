@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE: "sqlite:///./test.db"
+      HASH_KEY: "super-secret-key"
     strategy:
       matrix:
         python-version: ["3.12"]

@@ -101,7 +101,7 @@ def test_auth_read_wrong_user_id(client_fixture, get_user_token):
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_user_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == f"You try to access an other user"
+    assert response.json()["detail"] == "You try to access an other user"
 
 
 def test_read_user_name(client_fixture):

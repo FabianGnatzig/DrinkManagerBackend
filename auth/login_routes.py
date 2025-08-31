@@ -4,12 +4,12 @@ Description: Route and methods for auth.
 """
 
 import jwt
-from datetime import timedelta, datetime, timezone
-from typing import Annotated
 
-from fastapi import Depends, HTTPException, status, APIRouter
+from datetime import timedelta, datetime, timezone
+from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
+from typing import Annotated
 
 from dependencies import get_session, SECRET_KEY, ALGORITHM, pwd_context
 from auth.login_classes import Token
@@ -54,8 +54,8 @@ def authenticate_user(session: Session, username: str, password: str):
         if pwd_context.verify(password, user["password"]):
             return user
 
-    except HTTPException:
-        raise exception
+    except HTTPException as ex:
+        raise exception from ex
 
     raise exception
 

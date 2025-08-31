@@ -79,7 +79,7 @@ def get_user_id(
         )
 
     if not (auth_is_user(user.id, token) or auth_is_admin(token)):
-        raise HTTPException(status_code=401, detail=f"You try to access an other user")
+        raise HTTPException(status_code=401, detail="You try to access an other user")
 
     user_json = user.model_dump()
     if user.team:
