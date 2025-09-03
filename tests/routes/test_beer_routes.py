@@ -137,7 +137,7 @@ def test_fail_read_beer_by_code(client_fixture):
     """
     response = client_fixture.get("/beer/code/nope")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Beer with code 'nope' not found!"
+    assert response.json()["detail"] == "Beer with code 'nope' not found!"
 
 
 def test_read_beer_name(client_fixture):
