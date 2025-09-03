@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.5.0] - 2025-09-03
+### Added
+- OpenAI implementation
+- Create beer by image route
+- AI detection of beer data by label
+
+
 ## [v0.4.1] - 2025-08-31
 ### Added
 - Service route for data setup

@@ -5,11 +5,17 @@ Description: HTTP routes of beer.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi import APIRouter, Query, Depends, HTTPException, UploadFile, File
 from sqlmodel import select, Session
 
-from dependencies import get_session
+from dependencies import (
+    get_session,
+    client,
+    OPEN_AI_REQUEST,
+    get_json_from_open_ai_response,
+)
 from models.beer_models import Beer, BeerUpdate
+from models.brewery_models import Brewery
 
 router = APIRouter(prefix="/beer", tags=["Beer"])
 
@@ -71,6 +77,31 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
         raise HTTPException(
             status_code=404, detail=f"Beer with id '{beer_id}' not found!"
         )
+
+    beer_json = beer.model_dump()
+    if beer.brewery:
+        beer_json.update({"brewery": beer.brewery.model_dump()})
+    if beer.bring_beer:
+        beer_json.update({"bring_beer": beer.bring_beer})
+
+    return beer_json
+
+
+@router.get("/code/{beer_code}")
+def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> dict:
+    """
+    Searches for a beer with beer_code.
+    :param beer_code: The beer_code to search for.
+    :param session: The db session.
+    :return: Dictionary with beer and referenced brewery.
+    """
+    statement = select(Beer).where(Beer.beer_code == beer_code)
+    try:
+        beer = session.exec(statement).one()
+    except Exception as ex:
+        raise HTTPException(
+            status_code=404, detail=f"Beer with code '{beer_code}' not found!"
+        ) from ex
 
     beer_json = beer.model_dump()
     if beer.brewery:
@@ -148,3 +179,80 @@ def update_beer(
     session.commit()
     session.refresh(beer_db)
     return beer_db
+
+
+@router.post("/upload")
+def create_beer_by_image(
+    image: UploadFile, session: Session = Depends(get_session)
+):  # pragma: no cover
+    """
+    Checks if the beer exists. If not, add the data to the db.
+    :param image: File that was uploaded.
+    :param session: DB session.
+    :return: New created beer data.
+    """
+    # ToDo: Create unittest
+    if image:
+        data = get_data_from_open_ai(image)
+        if "details" in data.keys():
+            raise HTTPException(400, data["details"])
+
+        statement = select(Brewery).where(Brewery.name == data["brewery"])
+        try:
+            brewery = session.exec(statement).one()
+        except Exception as ex:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Brewery with name '{data["brewery"]}' not found!",
+            ) from ex
+
+        statement = select(Beer).where(Beer.name == data["name"])
+        try:
+            beer = session.exec(statement).one()
+            if beer.brewery.name == brewery.name:
+                return (
+                    f"Beer `{data["name"]}` with code `{data["beer_code"]}` "
+                    f"from brewery '{brewery.name}' already exists"
+                )
+
+        except Exception:
+            pass
+
+        data.pop("brewery")
+        data["brewery_id"] = brewery.id
+        new_beer = Beer(**data)
+
+        session.add(new_beer)
+        session.commit()
+        session.refresh(new_beer)
+        return new_beer
+
+    return HTTPException(400, "No image was uploaded")
+
+
+def get_data_from_open_ai(image: File):  # pragma: no cover
+    """
+    Gets the data from a beer label with the help of gpt-4o.
+    :param image: Image data of the label.
+    :return: None
+    """
+    file = client.files.create(file=(image.filename, image.file), purpose="user_data")
+
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "input_image",
+                        "file_id": file.id,
+                    },
+                    {"type": "input_text", "text": OPEN_AI_REQUEST},
+                ],
+            }
+        ],
+        store=True,
+    )
+
+    return get_json_from_open_ai_response(response.output_text)
