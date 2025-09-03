@@ -14,7 +14,7 @@ def create_beer(client: TestClient):
     """
     test_payload = {
         "name": "test_beer",
-        "beer_code": 1234,
+        "beer_code": "1234",
         "brewery_id": 1,
         "alcohol": 0.1,
         "volume": 0.2,

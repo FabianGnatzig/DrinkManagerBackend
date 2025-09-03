@@ -87,7 +87,7 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
     return beer_json
 
 
-@router.get("/code/{beer_id}")
+@router.get("/code/{beer_code}")
 def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a beer with beer_code.
@@ -100,7 +100,7 @@ def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> d
         beer = session.exec(statement).one()
     except Exception as ex:
         raise HTTPException(
-            status_code=404, detail=f"Beerr with code '{beer_code}' not found!"
+            status_code=404, detail=f"Beer with code '{beer_code}' not found!"
         ) from ex
 
     beer_json = beer.model_dump()
@@ -182,13 +182,16 @@ def update_beer(
 
 
 @router.post("/upload")
-def create_beer_by_image(image: UploadFile, session: Session = Depends(get_session)):
+def create_beer_by_image(
+    image: UploadFile, session: Session = Depends(get_session)
+):  # pragma: no cover
     """
     Checks if the beer exists. If not, add the data to the db.
     :param image: File that was uploaded.
     :param session: DB session.
     :return: New created beer data.
     """
+    # ToDo: Create unittest
     if image:
         data = get_data_from_open_ai(image)
         if "details" in data.keys():
@@ -227,7 +230,7 @@ def create_beer_by_image(image: UploadFile, session: Session = Depends(get_sessi
     return HTTPException(400, "No image was uploaded")
 
 
-def get_data_from_open_ai(image: File):
+def get_data_from_open_ai(image: File):  # pragma: no cover
     """
     Gets the data from a beer label with the help of gpt-4o.
     :param image: Image data of the label.

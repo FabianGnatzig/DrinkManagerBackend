@@ -112,6 +112,34 @@ def test_read_wrong_beer_id(client_fixture):
     assert response.json()["detail"] == f"Beer with id '{no_beer_id}' not found!"
 
 
+def test_read_beer_by_code(client_fixture):
+    """
+    Test the read beer by code.
+    :param client_fixture: Test client.
+    :return: None
+    """
+    create_brewery(client_fixture)
+    create_beer(client_fixture)
+    create_bring_beer(client_fixture)
+    response = client_fixture.get("/beer/code/1234")
+    assert response.status_code == 200
+    assert response.json()["beer_code"] == "1234"
+    assert response.json()["volume"] == 0.2
+    assert response.json()["brewery"]
+    assert response.json()["bring_beer"]
+
+
+def test_fail_read_beer_by_code(client_fixture):
+    """
+    Test the fail of read beer by code.
+    :param client_fixture: Test client.
+    :return: None
+    """
+    response = client_fixture.get("/beer/code/nope")
+    assert response.status_code == 404
+    assert response.json()["detail"] == f"Beer with code 'nope' not found!"
+
+
 def test_read_beer_name(client_fixture):
     """
     Tests read a beer by name.

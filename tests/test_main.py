@@ -4,7 +4,7 @@ Description: Test main functions.
 """
 
 from sqlmodel import create_engine, inspect, Session
-from dependencies import create_db, get_session
+from dependencies import create_db, get_session, get_json_from_open_ai_response
 
 TABLES = ["beer", "brewery", "bringbeer", "event", "season", "team", "user", "userbeer"]
 
@@ -39,3 +39,24 @@ def test_get_session(monkeypatch):
     assert isinstance(test_session, Session)
 
     session_gen.close()
+
+
+def test_fail_json_from_response():
+    """
+    Test fails when no json is inside the message.
+    :return: None
+    """
+    data = "Any teststring"
+    response = get_json_from_open_ai_response(data)
+    assert response["details"] == "No data found!"
+
+
+def test_json_from_response():
+    """
+    Test string to json transfer.
+    :return: None
+    """
+    data = 'Any teststring ```json{"key": "data"}```'
+    response = get_json_from_open_ai_response(data)
+    print(response)
+    assert response["key"] == "data"
