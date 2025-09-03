@@ -63,5 +63,5 @@ def get_json_from_open_ai_response(response: str):
     try:
         data = response.split("```")[1].lstrip("json")
         return json.loads(data)
-    except Exception as ex:
+    except Exception:
         return {"details": "No data found!"}

@@ -88,7 +88,7 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
 
 
 @router.get("/code/{beer_id}")
-def read_beer_id(beer_code: str, session: Session = Depends(get_session)) -> dict:
+def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a beer with beer_code.
     :param beer_code: The beer_code to search for.
@@ -212,7 +212,7 @@ def create_beer_by_image(image: UploadFile, session: Session = Depends(get_sessi
                     f"from brewery '{brewery.name}' already exists"
                 )
 
-        except Exception as ex:
+        except Exception:
             pass
 
         data.pop("brewery")
