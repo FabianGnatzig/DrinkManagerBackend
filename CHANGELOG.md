@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.5.1] - 2025-09-04
+### Changed
+- Advance authentication before deleting items
+- Improved authentication methods
+
+
 ## [v0.5.0] - 2025-09-03
 ### Added
 - OpenAI implementation
