@@ -245,8 +245,6 @@ def create_beer_by_image(
     session.refresh(new_beer)
     return new_beer
 
-    return HTTPException(400, "No image was uploaded")
-
 
 def get_data_from_open_ai(image: File):  # pragma: no cover
     """

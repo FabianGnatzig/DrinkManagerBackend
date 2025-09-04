@@ -21,7 +21,7 @@ def auth_is_user(user_id: int, jwt_token: str):
             return False
         return True
 
-    except jwt.ExpiredSignatureError or jwt.InvalidTokenError:
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return False
 
 
@@ -38,5 +38,5 @@ def auth_is_admin(jwt_token: str):
 
         return True
 
-    except jwt.ExpiredSignatureError or jwt.InvalidTokenError:
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return False
