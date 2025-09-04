@@ -9,7 +9,8 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 
-from dependencies import get_session
+from auth.auth_methods import auth_is_admin
+from dependencies import get_session, oauth2_scheme
 from models.event_models import Event
 
 router = APIRouter(prefix="/event", tags=["Event"])
@@ -105,13 +106,21 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
 
 
 @router.delete("/{event_id}")
-def delete_event(event_id: int, session: Session = Depends(get_session)) -> dict:
+def delete_event(
+    event_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+) -> dict:
     """
     Deletes an event with id.
     :param event_id: ID of an event.
+    :param token: User jwt-token.
     :param session: The db session.
     :return: {"ok": True} if succeeded.
     """
+    if not auth_is_admin(token):
+        raise HTTPException(status_code=401, detail="Invalid token or role")
+
     event = session.get(Event, event_id)
     if not event:
         raise HTTPException(

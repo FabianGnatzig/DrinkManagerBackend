@@ -132,32 +132,54 @@ def test_add_event_date_exception(client_fixture):
     assert response.json()["detail"] == "Invalid date"
 
 
-def test_delete_event(client_fixture):
+def test_delete_event(client_fixture, get_admin_token):
     """
     Test the deleting of an event.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_team(client_fixture)
     create_season(client_fixture)
     create_event(client_fixture)
 
-    response = client_fixture.delete("/event/1")
+    response = client_fixture.delete(
+        "/event/1", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 200
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_event(client_fixture):  #
+def test_delete_wrong_event(client_fixture, get_admin_token):  #
     """
     Test the deletion of an event exception.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_id = 321321
 
-    response = client_fixture.delete(f"/event/{wrong_id}")
+    response = client_fixture.delete(
+        f"/event/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == f"Event with id '{wrong_id}' not found!"
+
+
+def test_delete_event_invalid_token(client_fixture, get_invalid_token):
+    """
+    Test the deletion of an event on invalid token exception.
+    :param client_fixture: Test client.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    wrong_id = 321321
+
+    response = client_fixture.delete(
+        f"/event/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token or role"
 
 
 def test_update_event_name(client_fixture):

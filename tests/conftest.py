@@ -3,14 +3,15 @@ Created by Fabian Gnatzig
 Description: Methods and fixtures for unittests.
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
+import jwt
 import pytest
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient
 
 from auth.login_routes import create_access_token
-from dependencies import get_session
+from dependencies import get_session, ALGORITHM, SECRET_KEY
 from main import app
 
 DATABASE = "sqlite:///test.db"
@@ -69,3 +70,16 @@ def get_user_token():
     """
     token = create_access_token({"sub": "alice", "user_id": 1, "role": "test"})
     return token
+
+
+@pytest.fixture
+def get_invalid_token():
+    """
+    Creates an invalid JWT-Token.
+    :return: Invalid JWT-Token.
+    """
+    to_encode = {"sub": "alice", "user_id": 1, "role": "test"}
+    expire = datetime.now(timezone.utc) - timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt

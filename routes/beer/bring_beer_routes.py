@@ -8,7 +8,8 @@ from typing import Sequence, Annotated
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 
-from dependencies import get_session
+from auth.auth_methods import auth_is_admin
+from dependencies import get_session, oauth2_scheme
 from models.beer_models import BringBeer, BringBeerUpdate
 
 router = APIRouter(prefix="/bringbeer", tags=["BringBeer"])
@@ -76,14 +77,20 @@ def create_bring_beer(
 
 @router.delete("/{bring_beer_id}")
 def delete_bring_beer(
-    bring_beer_id: int, session: Session = Depends(get_session)
+    bring_beer_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
 ) -> dict:
     """
     Deletes a bring beer with id.
     :param bring_beer_id: ID of bring beer instance.
+    :param token: User jwt-token.
     :param session: The db session.
     :return: {"ok": True} if succeeded.
     """
+    if not auth_is_admin(token):
+        raise HTTPException(status_code=401, detail="Invalid token or role")
+
     bring_beer = session.get(BringBeer, bring_beer_id)
     if not bring_beer:
         raise HTTPException(

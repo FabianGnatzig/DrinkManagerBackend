@@ -161,30 +161,52 @@ def test_add_user_with_wrong_birthday(client_fixture):
     assert response.json()["detail"] == "Invalid date"
 
 
-def test_delete_user(client_fixture):
+def test_delete_user(client_fixture, get_admin_token):
     """
     Test the deleting of a user.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_user(client_fixture)
 
-    response = client_fixture.delete("/user/1")
+    response = client_fixture.delete(
+        "/user/1", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 200
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_user(client_fixture):  #
+def test_delete_wrong_user(client_fixture, get_admin_token):  #
     """
     Test the deletion of a user exception.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_id = 321321
 
-    response = client_fixture.delete(f"/user/{wrong_id}")
+    response = client_fixture.delete(
+        f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == f"User with id '{wrong_id}' not found!"
+
+
+def test_delete_user_invalid_token(client_fixture, get_invalid_token):
+    """
+    Test the deletion of a user on invalid token exception.
+    :param client_fixture: Test client.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    wrong_id = 321321
+
+    response = client_fixture.delete(
+        f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token or role"
 
 
 def test_update_user_name(client_fixture):

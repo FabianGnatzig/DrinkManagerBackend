@@ -8,7 +8,8 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 
-from dependencies import get_session
+from auth.auth_methods import auth_is_admin
+from dependencies import get_session, oauth2_scheme
 from models.team_models import Team, TeamUpdate
 from models.user_models import get_public_user
 
@@ -104,13 +105,21 @@ def read_team_name(team_name: str, session: Session = Depends(get_session)) -> d
 
 
 @router.delete("/{team_id}")
-def delete_team(team_id: int, session: Session = Depends(get_session)):
+def delete_team(
+    team_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+):
     """
     Deletes a team with id.
     :param team_id: The id of a team to be deleted.
+    :param token: User jwt-token.
     :param session: The db session.
     :return: "ok": True if succeeded.
     """
+    if not auth_is_admin(token):
+        raise HTTPException(status_code=401, detail="Invalid token or role")
+
     team = session.get(Team, team_id)
     if not team:
         raise HTTPException(

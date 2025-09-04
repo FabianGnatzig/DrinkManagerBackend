@@ -118,13 +118,21 @@ def get_user_name(user_name: str, session: Session = Depends(get_session)) -> di
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, session: Session = Depends(get_session)) -> dict:
+def delete_user(
+    user_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+) -> dict:
     """
     Deletes a user with id.
     :param user_id: The id of a user to be deleted.
+    :param token: User jwt-token.
     :param session: The db session.
     :return: "ok": True if succeeded.
     """
+    if not auth_is_admin(token):
+        raise HTTPException(status_code=401, detail="Invalid token or role")
+
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(
