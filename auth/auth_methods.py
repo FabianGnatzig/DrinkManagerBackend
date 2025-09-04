@@ -15,10 +15,14 @@ def auth_is_user(user_id: int, jwt_token: str):
     :param jwt_token: JWT-Token of the user that access.
     :return: True if it is the user, False if not.
     """
-    decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-    if user_id != decoded_jwt["user_id"]:
+    try:
+        decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if user_id != decoded_jwt["user_id"]:
+            return False
+        return True
+
+    except jwt.ExpiredSignatureError or jwt.InvalidTokenError:
         return False
-    return True
 
 
 def auth_is_admin(jwt_token: str):
@@ -27,7 +31,12 @@ def auth_is_admin(jwt_token: str):
     :param jwt_token: JWT-Token of the user that access.
     :return: True if the user is admin, False if not.
     """
-    decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-    if decoded_jwt["role"] != "admin":
+    try:
+        decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if decoded_jwt["role"] != "admin":
+            return False
+
+        return True
+
+    except jwt.ExpiredSignatureError or jwt.InvalidTokenError:
         return False
-    return True

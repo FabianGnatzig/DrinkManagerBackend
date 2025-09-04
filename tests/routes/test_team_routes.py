@@ -84,30 +84,52 @@ def test_read_wrong_team_name(client_fixture):
     assert response.json()["detail"] == f"Team with name '{wrong_name}' not found!"
 
 
-def test_delete_team(client_fixture):
+def test_delete_team(client_fixture, get_admin_token):
     """
     Test the deleting of a team.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_team(client_fixture)
 
-    response = client_fixture.delete("/team/1")
+    response = client_fixture.delete(
+        "/team/1", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 200
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_team(client_fixture):  #
+def test_delete_wrong_team(client_fixture, get_admin_token):  #
     """
     Test the deletion of a team exception.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_id = 321321
 
-    response = client_fixture.delete(f"/team/{wrong_id}")
+    response = client_fixture.delete(
+        f"/team/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == f"Team with id '{wrong_id}' not found!"
+
+
+def test_delete_team_invalid_token(client_fixture, get_invalid_token):
+    """
+    Test the deletion of a team on invalid token exception.
+    :param client_fixture: Test client.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    wrong_id = 321321
+
+    response = client_fixture.delete(
+        f"/team/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token or role"
 
 
 def test_update_team_name(client_fixture):

@@ -170,30 +170,52 @@ def test_read_wrong_beer_name(client_fixture):
     assert response.json()["detail"] == f"Beer with name '{wrong_name}' not found!"
 
 
-def test_delete_beer(client_fixture):
+def test_delete_beer(client_fixture, get_admin_token):
     """
     Test the deleting of a beer.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_beer(client_fixture)
 
-    response = client_fixture.delete("/beer/1")
+    response = client_fixture.delete(
+        "/beer/1", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 200
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_beer(client_fixture):  #
+def test_delete_wrong_beer(client_fixture, get_admin_token):  #
     """
     Test the deletion of a beer exception.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_id = 321321
 
-    response = client_fixture.delete(f"/beer/{wrong_id}")
+    response = client_fixture.delete(
+        f"/beer/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == f"Beer with id '{wrong_id}' not found!"
+
+
+def test_delete_beer_invalid_token(client_fixture, get_invalid_token):
+    """
+    Test the deletion of a beer on invalid token exception.
+    :param client_fixture: Test client.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    wrong_id = 321321
+
+    response = client_fixture.delete(
+        f"/beer/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token or role"
 
 
 def test_update_beer_name(client_fixture):

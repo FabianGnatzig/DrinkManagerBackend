@@ -53,30 +53,53 @@ def test_read_wrong_bring_beer_id(client_fixture):
     assert response.json()["detail"] == f"Bring beer with id '{wrong_id}' not found!"
 
 
-def test_delete_bring_beer(client_fixture):
+def test_delete_bring_beer(client_fixture, get_admin_token):
     """
     Test the deleting of a bring_beer.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_bring_beer(client_fixture)
 
-    response = client_fixture.delete("/bringbeer/1")
+    response = client_fixture.delete(
+        "/bringbeer/1", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 200
     assert response.json()["ok"] is True
 
 
-def test_delete_wrong_bring_beer(client_fixture):  #
+def test_delete_wrong_bring_beer(client_fixture, get_admin_token):  #
     """
     Test the deletion of a bring_beer exception.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_id = 321321
 
-    response = client_fixture.delete(f"/bringbeer/{wrong_id}")
+    response = client_fixture.delete(
+        f"/bringbeer/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == f"Bring beer with id '{wrong_id}' not found!"
+
+
+def test_delete_bring_beer_invalid_token(client_fixture, get_invalid_token):
+    """
+    Test the deletion of a bring_beer on invalid token exception.
+    :param client_fixture: Test client.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    wrong_id = 321321
+
+    response = client_fixture.delete(
+        f"/bringbeer/{wrong_id}",
+        headers={"Authorization": f"Bearer {get_invalid_token}"},
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token or role"
 
 
 def test_update_bring_beer_name(client_fixture):

@@ -8,7 +8,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 
-from dependencies import get_session
+from auth.auth_methods import auth_is_admin
+from dependencies import get_session, oauth2_scheme
 from models.season_models import Season, SeasonUpdate
 
 router = APIRouter(prefix="/season", tags=["Season"])
@@ -102,13 +103,21 @@ def create_season(season: Season, session: Session = Depends(get_session)) -> Se
 
 
 @router.delete("/{season_id}")
-def delete_season(season_id: int, session: Session = Depends(get_session)) -> dict:
+def delete_season(
+    season_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+) -> dict:
     """
     Deletes a season with id.
     :param season_id: The id of a season to be deleted.
+    :param token: User jwt-token.
     :param session: The db session.
     :return: {"ok": True} if succeeded.
     """
+    if not auth_is_admin(token):
+        raise HTTPException(status_code=401, detail="Invalid token or role")
+
     season = session.get(Season, season_id)
     if not season:
         raise HTTPException(
