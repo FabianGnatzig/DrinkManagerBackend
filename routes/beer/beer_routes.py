@@ -196,7 +196,7 @@ def create_beer_by_image(
     image: UploadFile,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-):  # pragma: no cover
+):
     """
     Checks if the beer exists. If not, add the data to the db.
     :param image: File that was uploaded.
@@ -204,12 +204,8 @@ def create_beer_by_image(
     :param session: DB session.
     :return: New created beer data.
     """
-    # ToDo: Create unittest
     if not auth_is_admin(token):
         raise HTTPException(status_code=401, detail="Invalid token or role")
-
-    if not image:
-        raise HTTPException(status_code=400, detail="No image")
 
     data = get_data_from_open_ai(image)
     if "details" in data.keys():

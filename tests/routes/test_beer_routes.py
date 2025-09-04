@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: Unittests of beer-routes.
 """
 
+from unittest.mock import patch
 from tests.helper_methods import create_brewery, create_bring_beer, create_beer
 
 
@@ -246,3 +247,149 @@ def test_update_wrong_beer(client_fixture):
     response = client_fixture.patch(f"/beer/{wrong_id}", json={})
     assert response.status_code == 404
     assert response.json()["detail"] == f"Beer with id '{wrong_id}' not found!"
+
+
+def test_create_beer_by_image(tmp_path, client_fixture, get_admin_token):
+    """
+    Test the creation of a beer by image.
+    :param tmp_path: Test path of image.
+    :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
+    :return: None
+    """
+    create_brewery(client_fixture)
+    file_path = tmp_path / "test.png"
+    file_path.write_bytes(b"fake image content")
+
+    fake_data = {
+        "name": "Test Beer",
+        "beer_code": "TB001",
+        "brewery": "test_brewery",
+        "alcohol": 5.0,
+        "volume": 0.2,
+    }
+
+    with patch("routes.beer.beer_routes.get_data_from_open_ai", return_value=fake_data):
+        response = client_fixture.post(
+            "/beer/upload",
+            headers={"Authorization": f"Bearer {get_admin_token}"},
+            files={"image": ("test.png", file_path.read_bytes(), "image/png")},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["name"] == "Test Beer"
+    assert response.json()["beer_code"] == "TB001"
+
+
+def test_create_beer_without_brewery_by_image(
+    tmp_path, client_fixture, get_admin_token
+):
+    """
+    Test the creation of a beer without brewery exception.
+    :param tmp_path: Test path of image.
+    :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
+    :return: None
+    """
+    file_path = tmp_path / "test.png"
+    file_path.write_bytes(b"fake image content")
+
+    fake_data = {
+        "name": "Test Beer",
+        "beer_code": "TB001",
+        "brewery": "test_brewery",
+        "alcohol": 5.0,
+        "volume": 0.2,
+    }
+
+    with patch("routes.beer.beer_routes.get_data_from_open_ai", return_value=fake_data):
+        response = client_fixture.post(
+            "/beer/upload",
+            headers={"Authorization": f"Bearer {get_admin_token}"},
+            files={"image": ("test.png", file_path.read_bytes(), "image/png")},
+        )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Brewery with name 'test_brewery' not found!"
+
+
+def test_create_beer_without_admin_by_image(tmp_path, client_fixture, get_user_token):
+    """
+    Test the creation of a beer without admin exception.
+    :param tmp_path: Test path of image.
+    :param client_fixture: Test client.
+    :param get_user_token: Test user token.
+    :return: None
+    """
+    file_path = tmp_path / "test.png"
+    file_path.write_bytes(b"fake image content")
+
+    response = client_fixture.post(
+        "/beer/upload",
+        headers={"Authorization": f"Bearer {get_user_token}"},
+        files={"image": ("test.png", file_path.read_bytes(), "image/png")},
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token or role"
+
+
+def test_create_existing_beer_by_image(tmp_path, client_fixture, get_admin_token):
+    """
+    Test the creation of a beer by image exception.
+    :param tmp_path: Test path of image.
+    :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
+    :return: None
+    """
+    create_brewery(client_fixture)
+    create_beer(client_fixture)
+    file_path = tmp_path / "test.png"
+    file_path.write_bytes(b"fake image content")
+
+    fake_data = {
+        "name": "test_beer",
+        "beer_code": "1234",
+        "brewery": "test_brewery",
+        "alcohol": 0.1,
+        "volume": 0.2,
+    }
+
+    with patch("routes.beer.beer_routes.get_data_from_open_ai", return_value=fake_data):
+        response = client_fixture.post(
+            "/beer/upload",
+            headers={"Authorization": f"Bearer {get_admin_token}"},
+            files={"image": ("test.png", file_path.read_bytes(), "image/png")},
+        )
+
+    assert response.status_code == 200
+    assert (
+        response.json()
+        == "Beer `test_beer` with code `1234` from brewery 'test_brewery' already exists"
+    )
+
+
+def test_get_no_data_from_ai(tmp_path, client_fixture, get_admin_token):
+    """
+    Test the creation of a beer without data from AI exception.
+    :param tmp_path: Test path of image.
+    :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
+    :return: None
+    """
+    create_brewery(client_fixture)
+    create_beer(client_fixture)
+    file_path = tmp_path / "test.png"
+    file_path.write_bytes(b"fake image content")
+
+    fake_data = {"details": "some details"}
+
+    with patch("routes.beer.beer_routes.get_data_from_open_ai", return_value=fake_data):
+        response = client_fixture.post(
+            "/beer/upload",
+            headers={"Authorization": f"Bearer {get_admin_token}"},
+            files={"image": ("test.png", file_path.read_bytes(), "image/png")},
+        )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "some details"

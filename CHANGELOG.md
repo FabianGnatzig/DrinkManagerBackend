@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Advance authentication before deleting items
 - Improved authentication methods
+### Added
+- Unittest for AI beer creation
 
 
 ## [v0.5.0] - 2025-09-03
