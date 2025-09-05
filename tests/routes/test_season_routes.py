@@ -50,7 +50,7 @@ def test_read_wrong_season_id(client_fixture):
 
     response = client_fixture.get(f"/season/{wrong_id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Season with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"SEASON with id '{wrong_id}' not found!"
 
 
 def test_read_season_name(client_fixture):
@@ -85,7 +85,7 @@ def test_read_wrong_season_name(client_fixture):
 
     response = client_fixture.get(f"/season/name/{wrong_name}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Season with name '{wrong_name}' not found!"
+    assert response.json()["detail"] == f"SEASON with name '{wrong_name}' not found!"
 
 
 def test_add_empty_season(client_fixture):
@@ -101,7 +101,7 @@ def test_add_empty_season(client_fixture):
 
     response = client_fixture.post("/season/add", json=test_payload)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Invalid season"
+    assert response.json()["detail"] == "Incomplete SEASON"
 
 
 def test_add_season_without_team(client_fixture):
@@ -117,7 +117,7 @@ def test_add_season_without_team(client_fixture):
 
     response = client_fixture.post("/season/add", json=test_payload)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Invalid season"
+    assert response.json()["detail"] == "Incomplete SEASON"
 
 
 def test_delete_season(client_fixture, get_admin_token):
@@ -150,7 +150,7 @@ def test_delete_wrong_season(client_fixture, get_admin_token):  #
         f"/season/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Season with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"SEASON with id '{wrong_id}' not found!"
 
 
 def test_delete_season_invalid_token(client_fixture, get_invalid_token):
@@ -166,7 +166,7 @@ def test_delete_season_invalid_token(client_fixture, get_invalid_token):
         f"/season/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_season_name(client_fixture):
@@ -196,4 +196,4 @@ def test_update_wrong_season(client_fixture):
     wrong_id = 321321
     response = client_fixture.patch(f"/season/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Season with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"SEASON with id '{wrong_id}' not found!"

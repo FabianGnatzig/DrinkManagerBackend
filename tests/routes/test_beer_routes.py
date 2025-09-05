@@ -4,6 +4,7 @@ Description: Unittests of beer-routes.
 """
 
 from unittest.mock import patch
+
 from tests.helper_methods import create_brewery, create_bring_beer, create_beer
 
 
@@ -79,7 +80,7 @@ def test_create_wrong_beer(client_fixture):
     """
     response = client_fixture.post("/beer/add", json={"no_beer": "beer"})
     assert response.status_code == 400
-    assert response.json()["detail"] == "Incomplete beer"
+    assert response.json()["detail"] == "Incomplete BEER"
 
 
 def test_read_beer_id(client_fixture):
@@ -110,7 +111,7 @@ def test_read_wrong_beer_id(client_fixture):
 
     response = client_fixture.get(f"/beer/{no_beer_id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Beer with id '{no_beer_id}' not found!"
+    assert response.json()["detail"] == f"BEER with id '{no_beer_id}' not found!"
 
 
 def test_read_beer_by_code(client_fixture):
@@ -138,7 +139,7 @@ def test_fail_read_beer_by_code(client_fixture):
     """
     response = client_fixture.get("/beer/code/nope")
     assert response.status_code == 404
-    assert response.json()["detail"] == "Beer with code 'nope' not found!"
+    assert response.json()["detail"] == "BEER with code 'nope' not found!"
 
 
 def test_read_beer_name(client_fixture):
@@ -168,7 +169,7 @@ def test_read_wrong_beer_name(client_fixture):
 
     response = client_fixture.get(f"/beer/name/{wrong_name}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Beer with name '{wrong_name}' not found!"
+    assert response.json()["detail"] == f"BEER with name '{wrong_name}' not found!"
 
 
 def test_delete_beer(client_fixture, get_admin_token):
@@ -200,7 +201,7 @@ def test_delete_wrong_beer(client_fixture, get_admin_token):  #
         f"/beer/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Beer with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"BEER with id '{wrong_id}' not found!"
 
 
 def test_delete_beer_invalid_token(client_fixture, get_invalid_token):
@@ -216,7 +217,7 @@ def test_delete_beer_invalid_token(client_fixture, get_invalid_token):
         f"/beer/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_beer_name(client_fixture):
@@ -246,7 +247,7 @@ def test_update_wrong_beer(client_fixture):
     wrong_id = 321321
     response = client_fixture.patch(f"/beer/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Beer with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"BEER with id '{wrong_id}' not found!"
 
 
 def test_create_beer_by_image(tmp_path, client_fixture, get_admin_token):
@@ -310,7 +311,7 @@ def test_create_beer_without_brewery_by_image(
         )
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Brewery with name 'test_brewery' not found!"
+    assert response.json()["detail"] == "BREWERY with name 'test_brewery' not found!"
 
 
 def test_create_beer_without_admin_by_image(tmp_path, client_fixture, get_user_token):
@@ -331,7 +332,7 @@ def test_create_beer_without_admin_by_image(tmp_path, client_fixture, get_user_t
     )
 
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid role"
 
 
 def test_create_existing_beer_by_image(tmp_path, client_fixture, get_admin_token):
@@ -365,7 +366,7 @@ def test_create_existing_beer_by_image(tmp_path, client_fixture, get_admin_token
     assert response.status_code == 200
     assert (
         response.json()
-        == "Beer `test_beer` with code `1234` from brewery 'test_brewery' already exists"
+        == "BEER `test_beer` with code `1234` from brewery 'test_brewery' already exists"
     )
 
 

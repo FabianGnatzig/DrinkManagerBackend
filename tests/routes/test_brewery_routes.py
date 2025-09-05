@@ -76,7 +76,7 @@ def test_create_wrong_brewery(client_fixture):
     """
     response = client_fixture.post("/brewery/add", json={"no_brewery": "brewery"})
     assert response.status_code == 400
-    assert response.json()["detail"] == "Incomplete brewery"
+    assert response.json()["detail"] == "Incomplete BREWERY"
 
 
 def test_read_brewery_id(client_fixture):
@@ -104,7 +104,7 @@ def test_read_wrong_brewery_id(client_fixture):
 
     response = client_fixture.get(f"/brewery/{no_brewery_id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Brewery with id '{no_brewery_id}' not found!"
+    assert response.json()["detail"] == f"BREWERY with id '{no_brewery_id}' not found!"
 
 
 def test_read_brewery_name(client_fixture):
@@ -131,7 +131,7 @@ def test_read_wrong_brewery_name(client_fixture):
 
     response = client_fixture.get(f"/brewery/name/{wrong_name}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Brewery with name '{wrong_name}' not found!"
+    assert response.json()["detail"] == f"BREWERY with name '{wrong_name}' not found!"
 
 
 def test_delete_brewery(client_fixture, get_admin_token):
@@ -163,7 +163,7 @@ def test_delete_wrong_brewery(client_fixture, get_admin_token):  #
         f"/brewery/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Brewery with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"BREWERY with id '{wrong_id}' not found!"
 
 
 def test_delete_brewery_invalid_token(client_fixture, get_invalid_token):
@@ -179,7 +179,7 @@ def test_delete_brewery_invalid_token(client_fixture, get_invalid_token):
         f"/brewery/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_brewery_name(client_fixture):
@@ -208,4 +208,4 @@ def test_update_wrong_brewery(client_fixture):
     wrong_id = 321321
     response = client_fixture.patch(f"/brewery/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Brewery with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"BREWERY with id '{wrong_id}' not found!"

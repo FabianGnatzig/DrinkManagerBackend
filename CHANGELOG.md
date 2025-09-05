@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.5.2] - 2025-09-05
+### Changed
+- Refactored exceptions and authentication
+
+
 ## [v0.5.1] - 2025-09-04
 ### Changed
 - Advance authentication before deleting items

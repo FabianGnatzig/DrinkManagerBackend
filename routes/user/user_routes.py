@@ -6,14 +6,19 @@ Description: HTTP Routes of user.
 from datetime import datetime
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
 from dependencies import get_session, oauth2_scheme, pwd_context
-from auth.auth_methods import auth_is_user, auth_is_admin
+from auth.auth_methods import auth_is_admin, auth_is_user_or_admin
+from exceptions import (
+    InvalidException,
+    NotFoundException,
+)
 from models.user_models import User, UserUpdate
 
 router = APIRouter(prefix="/user", tags=["User"])
+TYPE = "USER"
 
 
 @router.get("/all")
@@ -47,7 +52,7 @@ def create_user(user_data: dict, session: Session = Depends(get_session)) -> Use
             user_data["birthday"], "%Y-%m-%d"
         ).date()
     except Exception as ex:
-        raise HTTPException(status_code=400, detail="Invalid date") from ex
+        raise InvalidException("birthday") from ex
 
     user_data["password"] = pwd_context.hash(user_data["password"])
 
@@ -74,12 +79,9 @@ def get_user_id(
     user = session.get(User, user_id)
 
     if not user:
-        raise HTTPException(
-            status_code=404, detail=f"User with id '{user_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=user_id)
 
-    if not (auth_is_user(user.id, token) or auth_is_admin(token)):
-        raise HTTPException(status_code=401, detail="You try to access an other user")
+    auth_is_user_or_admin(user_id, token)
 
     user_json = user.model_dump()
     if user.team:
@@ -103,9 +105,7 @@ def get_user_name(user_name: str, session: Session = Depends(get_session)) -> di
     try:
         user = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"User with last name '{user_name}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_name=user_name) from ex
 
     user_json = user.model_dump()
     if user.team:
@@ -130,14 +130,11 @@ def delete_user(
     :param session: The db session.
     :return: "ok": True if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(
-            status_code=404, detail=f"User with id '{user_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=user_id)
 
     session.delete(user)
     session.commit()
@@ -157,9 +154,7 @@ def update_user(
     """
     user_db = session.get(User, user_id)
     if not user_db:
-        raise HTTPException(
-            status_code=404, detail=f"User with id '{user_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=user_id)
 
     user_data = user.model_dump(exclude_unset=True)
     user_db.sqlmodel_update(user_data)

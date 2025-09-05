@@ -6,6 +6,7 @@ Description: Methods for authentication.
 import jwt
 
 from dependencies import SECRET_KEY, ALGORITHM
+from exceptions import InvalidUserException, InvalidTokenException, InvalidRoleException
 
 
 def auth_is_user(user_id: int, jwt_token: str):
@@ -18,11 +19,10 @@ def auth_is_user(user_id: int, jwt_token: str):
     try:
         decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
         if user_id != decoded_jwt["user_id"]:
-            return False
-        return True
+            raise InvalidUserException
 
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        return False
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
 
 
 def auth_is_admin(jwt_token: str):
@@ -34,9 +34,25 @@ def auth_is_admin(jwt_token: str):
     try:
         decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
         if decoded_jwt["role"] != "admin":
-            return False
+            raise InvalidRoleException
 
-        return True
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
 
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        return False
+
+def auth_is_user_or_admin(user_id: int, jwt_token: str):
+    """
+    Helper method for authenticate if the user access its data.
+    :param user_id: ID of user that access.
+    :param jwt_token: JWT-Token of the user that access.
+    :return: None
+    """
+    try:
+        auth_is_admin(jwt_token)
+        return
+    except InvalidRoleException:
+        pass
+    except InvalidTokenException as ex:
+        raise ex
+
+    auth_is_user(user_id, jwt_token)
