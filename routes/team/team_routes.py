@@ -10,10 +10,12 @@ from sqlmodel import Session, select
 
 from auth.auth_methods import auth_is_admin
 from dependencies import get_session, oauth2_scheme
+from exceptions import IncompleteException, NotFoundException
 from models.team_models import Team, TeamUpdate
 from models.user_models import get_public_user
 
 router = APIRouter(prefix="/team", tags=["Team"])
+TYPE = "TEAM"
 
 
 @router.get("/all")
@@ -43,7 +45,7 @@ def create_team(team: Team, session: Session = Depends(get_session)) -> Team:
     :return: The created team instance.
     """
     if not team.name:
-        raise HTTPException(status_code=400, detail="Incomplete team")
+        raise IncompleteException(TYPE)
 
     session.add(team)
     session.commit()
@@ -62,9 +64,7 @@ def read_team_id(team_id: int, session: Session = Depends(get_session)) -> dict:
     team = session.get(Team, team_id)
 
     if not team:
-        raise HTTPException(
-            status_code=404, detail=f"Team with id '{team_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=team_id)
 
     team_json = team.model_dump()
     if team.users:
@@ -89,9 +89,7 @@ def read_team_name(team_name: str, session: Session = Depends(get_session)) -> d
     try:
         team = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"Team with name '{team_name}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_name=team_name) from ex
 
     team_json = team.model_dump()
     if team.users:
@@ -117,14 +115,11 @@ def delete_team(
     :param session: The db session.
     :return: "ok": True if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     team = session.get(Team, team_id)
     if not team:
-        raise HTTPException(
-            status_code=404, detail=f"Team with id '{team_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=team_id)
 
     session.delete(team)
     session.commit()
@@ -144,9 +139,7 @@ def update_team(
     """
     team_db = session.get(Team, team_id)
     if not team_db:
-        raise HTTPException(
-            status_code=404, detail=f"Team with id '{team_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=team_id)
 
     team_data = team.model_dump(exclude_unset=True)
     team_db.sqlmodel_update(team_data)

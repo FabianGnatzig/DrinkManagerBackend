@@ -10,9 +10,12 @@ from sqlmodel import Session, select
 
 from auth.auth_methods import auth_is_admin
 from dependencies import get_session, oauth2_scheme
+from exceptions import NotFoundException
 from models.beer_models import BringBeer, BringBeerUpdate
 
 router = APIRouter(prefix="/bringbeer", tags=["BringBeer"])
+
+TYPE = "BRING_BEER"
 
 
 @router.get("/all")
@@ -45,9 +48,7 @@ def read_bring_beer_id(
     """
     bring_beer = session.get(BringBeer, bring_beer_id)
     if not bring_beer:
-        raise HTTPException(
-            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=bring_beer_id)
 
     bring_beer_json = bring_beer.model_dump()
     if bring_beer.user:
@@ -88,14 +89,11 @@ def delete_bring_beer(
     :param session: The db session.
     :return: {"ok": True} if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     bring_beer = session.get(BringBeer, bring_beer_id)
     if not bring_beer:
-        raise HTTPException(
-            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=bring_beer_id)
 
     session.delete(bring_beer)
     session.commit()
@@ -117,9 +115,7 @@ def update_bring_beer(
     """
     bring_beer_db = session.get(BringBeer, bring_beer_id)
     if not bring_beer_db:
-        raise HTTPException(
-            status_code=404, detail=f"Bring beer with id '{bring_beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=bring_beer_id)
 
     bring_beer_data = bring_beer.model_dump(exclude_unset=True)
     bring_beer_db.sqlmodel_update(bring_beer_data)

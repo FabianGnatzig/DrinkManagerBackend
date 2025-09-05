@@ -16,10 +16,13 @@ from dependencies import (
     get_json_from_open_ai_response,
     oauth2_scheme,
 )
+from exceptions import NotFoundException, IncompleteException
 from models.beer_models import Beer, BeerUpdate
 from models.brewery_models import Brewery
 
 router = APIRouter(prefix="/beer", tags=["Beer"])
+
+TYPE = "BEER"
 
 
 @router.get("/all")
@@ -59,7 +62,8 @@ def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
     :return: The created beer instance.
     """
     if not (beer.name and beer.brewery_id and beer.beer_code):
-        raise HTTPException(status_code=400, detail="Incomplete beer")
+        raise IncompleteException(TYPE)
+
     session.add(beer)
     session.commit()
     session.refresh(beer)
@@ -76,9 +80,7 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
     """
     beer = session.get(Beer, beer_id)
     if not beer:
-        raise HTTPException(
-            status_code=404, detail=f"Beer with id '{beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=beer_id)
 
     beer_json = beer.model_dump()
     if beer.brewery:
@@ -101,9 +103,7 @@ def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> d
     try:
         beer = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"Beer with code '{beer_code}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_code=beer_code) from ex
 
     beer_json = beer.model_dump()
     if beer.brewery:
@@ -126,9 +126,7 @@ def read_beer_name(beer_name: str, session: Session = Depends(get_session)) -> d
     try:
         beer = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"Beer with name '{beer_name}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_name=beer_name) from ex
 
     beer_json = beer.model_dump()
     if beer.brewery:
@@ -152,14 +150,11 @@ def delete_beer(
     :param token: User jwt-token.
     :return: "ok": True if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     beer = session.get(Beer, beer_id)
     if not beer:
-        raise HTTPException(
-            status_code=404, detail=f"Beer with id '{beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=beer_id)
 
     session.delete(beer)
     session.commit()
@@ -179,9 +174,7 @@ def update_beer(
     """
     beer_db = session.get(Beer, beer_id)
     if not beer_db:
-        raise HTTPException(
-            status_code=404, detail=f"Beer with id '{beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=beer_id)
 
     beer_data = beer.model_dump(exclude_unset=True)
     beer_db.sqlmodel_update(beer_data)
@@ -204,8 +197,7 @@ def create_beer_by_image(
     :param session: DB session.
     :return: New created beer data.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     data = get_data_from_open_ai(image)
     if "details" in data.keys():
@@ -215,17 +207,14 @@ def create_beer_by_image(
     try:
         brewery = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Brewery with name '{data["brewery"]}' not found!",
-        ) from ex
+        raise NotFoundException("BREWERY", data["brewery"]) from ex
 
     statement = select(Beer).where(Beer.name == data["name"])
     try:
         beer = session.exec(statement).one()
         if beer.brewery.name == brewery.name:
             return (
-                f"Beer `{data["name"]}` with code `{data["beer_code"]}` "
+                f"{TYPE} `{data["name"]}` with code `{data["beer_code"]}` "
                 f"from brewery '{brewery.name}' already exists"
             )
 

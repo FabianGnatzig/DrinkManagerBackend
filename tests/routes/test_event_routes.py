@@ -58,7 +58,7 @@ def test_read_wrong_event_id(client_fixture):
 
     response = client_fixture.get(f"/event/{wrong_id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Event with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"EVENT with id '{wrong_id}' not found!"
 
 
 def test_read_event_name(client_fixture):
@@ -95,7 +95,7 @@ def test_read_wrong_event_name(client_fixture):
 
     response = client_fixture.get(f"/event/name/{wrong_name}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Event with name '{wrong_name}' not found!"
+    assert response.json()["detail"] == f"EVENT with name '{wrong_name}' not found!"
 
 
 def test_add_empty_event(client_fixture):
@@ -112,7 +112,7 @@ def test_add_empty_event(client_fixture):
 
     response = client_fixture.post("/event/add", json=test_payload)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Invalid event"
+    assert response.json()["detail"] == "Incomplete EVENT"
 
 
 def test_add_event_date_exception(client_fixture):
@@ -129,7 +129,7 @@ def test_add_event_date_exception(client_fixture):
 
     response = client_fixture.post("/event/add", json=test_payload)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Invalid date"
+    assert response.json()["detail"] == "Invalid event_date"
 
 
 def test_delete_event(client_fixture, get_admin_token):
@@ -163,7 +163,7 @@ def test_delete_wrong_event(client_fixture, get_admin_token):  #
         f"/event/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Event with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"EVENT with id '{wrong_id}' not found!"
 
 
 def test_delete_event_invalid_token(client_fixture, get_invalid_token):
@@ -179,7 +179,7 @@ def test_delete_event_invalid_token(client_fixture, get_invalid_token):
         f"/event/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_event_name(client_fixture):
@@ -210,4 +210,4 @@ def test_update_wrong_event(client_fixture):
     wrong_id = 321321
     response = client_fixture.patch(f"/event/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Event with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"EVENT with id '{wrong_id}' not found!"

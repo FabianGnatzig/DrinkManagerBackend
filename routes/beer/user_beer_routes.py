@@ -10,10 +10,13 @@ from sqlmodel import select, Session
 
 from auth.auth_methods import auth_is_admin
 from dependencies import get_session, oauth2_scheme
+from exceptions import NotFoundException
 from models.beer_models import UserBeer, UserBeerUpdate
 from models.user_models import User
 
 router = APIRouter(prefix="/userbeer", tags=["UserBeer"])
+
+TYPE = "USER_BEER"
 
 
 @router.get("/all")
@@ -63,9 +66,7 @@ def read_user_beer_id(
     """
     user_beer = session.get(UserBeer, user_beer_id)
     if not user_beer:
-        raise HTTPException(
-            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=user_beer_id)
 
     user_beer_json = user_beer.model_dump()
     if user_beer.user:
@@ -89,14 +90,11 @@ def delete_beer(
     :param session: DB session.
     :return: "ok": True if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     user_beer = session.get(UserBeer, user_beer_id)
     if not user_beer:
-        raise HTTPException(
-            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=user_beer_id)
 
     session.delete(user_beer)
     session.commit()
@@ -118,9 +116,7 @@ def update_beer(
     """
     user_beer_db = session.get(UserBeer, user_beer_id)
     if not user_beer_db:
-        raise HTTPException(
-            status_code=404, detail=f"User beer with id '{user_beer_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=user_beer_id)
 
     user_beer_data = user_beer.model_dump(exclude_unset=True)
     user_beer_db.sqlmodel_update(user_beer_data)

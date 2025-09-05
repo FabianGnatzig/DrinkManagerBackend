@@ -48,7 +48,7 @@ def test_read_wrong_team_id(client_fixture):
 
     response = client_fixture.get(f"/team/{wrong_id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Team with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"TEAM with id '{wrong_id}' not found!"
 
 
 def test_read_team_name(client_fixture):
@@ -81,7 +81,7 @@ def test_read_wrong_team_name(client_fixture):
 
     response = client_fixture.get(f"/team/name/{wrong_name}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Team with name '{wrong_name}' not found!"
+    assert response.json()["detail"] == f"TEAM with name '{wrong_name}' not found!"
 
 
 def test_delete_team(client_fixture, get_admin_token):
@@ -113,7 +113,7 @@ def test_delete_wrong_team(client_fixture, get_admin_token):  #
         f"/team/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Team with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"TEAM with id '{wrong_id}' not found!"
 
 
 def test_delete_team_invalid_token(client_fixture, get_invalid_token):
@@ -129,7 +129,7 @@ def test_delete_team_invalid_token(client_fixture, get_invalid_token):
         f"/team/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_team_name(client_fixture):
@@ -160,7 +160,7 @@ def test_add_wrong_team_name(client_fixture):
 
     response = client_fixture.post("/team/add", json=test_payload)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Incomplete team"
+    assert response.json()["detail"] == "Incomplete TEAM"
 
 
 def test_update_wrong_team(client_fixture):
@@ -172,4 +172,4 @@ def test_update_wrong_team(client_fixture):
     wrong_id = 321321
     response = client_fixture.patch(f"/team/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Team with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"TEAM with id '{wrong_id}' not found!"

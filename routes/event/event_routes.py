@@ -11,9 +11,11 @@ from sqlmodel import Session, select
 
 from auth.auth_methods import auth_is_admin
 from dependencies import get_session, oauth2_scheme
+from exceptions import NotFoundException, IncompleteException, InvalidException
 from models.event_models import Event
 
 router = APIRouter(prefix="/event", tags=["Event"])
+TYPE = "EVENT"
 
 
 @router.get("/all")
@@ -44,9 +46,7 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
     """
     event = session.get(Event, event_id)
     if not event:
-        raise HTTPException(
-            status_code=404, detail=f"Event with id '{event_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=event_id)
 
     event_json = event.model_dump()
     if event.season:
@@ -68,9 +68,7 @@ def get_event_name(event_name: str, session: Session = Depends(get_session)) -> 
     try:
         event = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"Event with name '{event_name}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_name=event_name) from ex
 
     event_json = event.model_dump()
     if event.season:
@@ -89,14 +87,14 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
     :return: The created event instance.
     """
     if event_data["name"] == "":
-        raise HTTPException(status_code=400, detail="Invalid event")
+        raise IncompleteException(TYPE)
 
     try:
         event_data["event_date"] = datetime.strptime(
             event_data["event_date"], "%Y-%m-%d"
         ).date()
     except Exception as ex:
-        raise HTTPException(status_code=400, detail="Invalid date") from ex
+        raise InvalidException("event_date") from ex
 
     event = Event(**event_data)
     session.add(event)
@@ -118,14 +116,11 @@ def delete_event(
     :param session: The db session.
     :return: {"ok": True} if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     event = session.get(Event, event_id)
     if not event:
-        raise HTTPException(
-            status_code=404, detail=f"Event with id '{event_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=event_id)
 
     session.delete(event)
     session.commit()
@@ -145,9 +140,7 @@ def update_event(
     """
     event_db = session.get(Event, event_id)
     if not event_db:
-        raise HTTPException(
-            status_code=404, detail=f"Event with id '{event_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=event_id)
 
     event_data = event.model_dump(exclude_unset=True)
     event_db.sqlmodel_update(event_data)

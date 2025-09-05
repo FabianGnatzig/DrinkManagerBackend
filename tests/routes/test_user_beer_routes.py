@@ -43,7 +43,7 @@ def test_read_wrong_user_beer_id(client_fixture):
 
     response = client_fixture.get(f"/userbeer/{wrong_id}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User beer with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"USER_BEER with id '{wrong_id}' not found!"
 
 
 def test_delete_user_beer(client_fixture, get_admin_token):
@@ -77,7 +77,7 @@ def test_delete_wrong_user_beer(client_fixture, get_admin_token):  #
         f"/userbeer/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User beer with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"USER_BEER with id '{wrong_id}' not found!"
 
 
 def test_delete_user_beer_invalid_token(client_fixture, get_invalid_token):
@@ -94,7 +94,7 @@ def test_delete_user_beer_invalid_token(client_fixture, get_invalid_token):
         headers={"Authorization": f"Bearer {get_invalid_token}"},
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_user_beer_name(client_fixture):
@@ -127,4 +127,4 @@ def test_update_wrong_user_beer(client_fixture):
 
     response = client_fixture.patch(f"/userbeer/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User beer with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"USER_BEER with id '{wrong_id}' not found!"

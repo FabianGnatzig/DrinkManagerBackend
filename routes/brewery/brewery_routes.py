@@ -10,9 +10,12 @@ from sqlmodel import Session, select
 
 from auth.auth_methods import auth_is_admin
 from dependencies import get_session, oauth2_scheme
+from exceptions import IncompleteException, NotFoundException
 from models.brewery_models import Brewery, BreweryUpdate
 
 router = APIRouter(prefix="/brewery", tags=["Brewery"])
+
+TYPE = "BREWERY"
 
 
 @router.get("/all")
@@ -51,7 +54,8 @@ def create_brewery(
     :return: The created brewery instance.
     """
     if not (brewery.name and brewery.city and brewery.country):
-        raise HTTPException(status_code=400, detail="Incomplete brewery")
+        raise IncompleteException(TYPE)
+
     session.add(brewery)
     session.commit()
     session.refresh(brewery)
@@ -69,9 +73,7 @@ def read_brewery_id(brewery_id: int, session: Session = Depends(get_session)) ->
     brewery = session.get(Brewery, brewery_id)
 
     if not brewery:
-        raise HTTPException(
-            status_code=404, detail=f"Brewery with id '{brewery_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=brewery_id)
 
     brewery_json = brewery.model_dump()
     if brewery.beers:
@@ -95,9 +97,7 @@ def read_brewery_name(
     try:
         brewery = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"Brewery with name '{brewery_name}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_name=brewery_name) from ex
 
     brewery_json = brewery.model_dump()
     if brewery.beers:
@@ -119,15 +119,12 @@ def delete_brewery(
     :param session: The db session.
     :return: "ok":True if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     brewery = session.get(Brewery, brewery_id)
 
     if not brewery:
-        raise HTTPException(
-            status_code=404, detail=f"Brewery with id '{brewery_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=brewery_id)
 
     session.delete(brewery)
     session.commit()
@@ -148,9 +145,7 @@ def update_brewery(
     brewery_db = session.get(Brewery, brewery_id)
 
     if not brewery_db:
-        raise HTTPException(
-            status_code=404, detail=f"Brewery with id '{brewery_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=brewery_id)
 
     brewery_data = brewery.model_dump(exclude_unset=True)
     brewery_db.sqlmodel_update(brewery_data)

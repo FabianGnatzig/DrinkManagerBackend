@@ -83,7 +83,7 @@ def test_read_wrong_user_id(client_fixture, get_admin_token):
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"USER with id '{wrong_id}' not found!"
 
 
 def test_auth_read_wrong_user_id(client_fixture, get_user_token):
@@ -101,7 +101,7 @@ def test_auth_read_wrong_user_id(client_fixture, get_user_token):
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_user_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "You try to access an other user"
+    assert response.json()["detail"] == "Invalid user"
 
 
 def test_read_user_name(client_fixture):
@@ -137,7 +137,7 @@ def test_read_wrong_user_name(client_fixture):
 
     response = client_fixture.get(f"/user/name/{wrong_name}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User with last name '{wrong_name}' not found!"
+    assert response.json()["detail"] == f"USER with name '{wrong_name}' not found!"
 
 
 def test_add_user_with_wrong_birthday(client_fixture):
@@ -158,7 +158,7 @@ def test_add_user_with_wrong_birthday(client_fixture):
 
     response = client_fixture.post("/user/add", json=test_payload)
     assert response.status_code == 400
-    assert response.json()["detail"] == "Invalid date"
+    assert response.json()["detail"] == "Invalid birthday"
 
 
 def test_delete_user(client_fixture, get_admin_token):
@@ -190,7 +190,7 @@ def test_delete_wrong_user(client_fixture, get_admin_token):  #
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"USER with id '{wrong_id}' not found!"
 
 
 def test_delete_user_invalid_token(client_fixture, get_invalid_token):
@@ -206,7 +206,7 @@ def test_delete_user_invalid_token(client_fixture, get_invalid_token):
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_invalid_token}"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid token or role"
+    assert response.json()["detail"] == "Invalid token"
 
 
 def test_update_user_name(client_fixture):
@@ -235,4 +235,4 @@ def test_update_wrong_user(client_fixture):
     wrong_id = 321321
     response = client_fixture.patch(f"/user/{wrong_id}", json={})
     assert response.status_code == 404
-    assert response.json()["detail"] == f"User with id '{wrong_id}' not found!"
+    assert response.json()["detail"] == f"USER with id '{wrong_id}' not found!"

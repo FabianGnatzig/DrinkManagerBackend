@@ -10,9 +10,11 @@ from sqlmodel import Session, select
 
 from auth.auth_methods import auth_is_admin
 from dependencies import get_session, oauth2_scheme
+from exceptions import NotFoundException, IncompleteException
 from models.season_models import Season, SeasonUpdate
 
 router = APIRouter(prefix="/season", tags=["Season"])
+TYPE = "SEASON"
 
 
 @router.get("/all")
@@ -49,9 +51,7 @@ def get_season_id(season_id: int, session: Session = Depends(get_session)) -> di
     """
     season = session.get(Season, season_id)
     if not season:
-        raise HTTPException(
-            status_code=404, detail=f"Season with id '{season_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=season_id)
 
     season_json = season.model_dump()
     if season.team:
@@ -73,9 +73,7 @@ def get_season_name(season_name: str, session: Session = Depends(get_session)) -
     try:
         season = session.exec(statement).one()
     except Exception as ex:
-        raise HTTPException(
-            status_code=404, detail=f"Season with name '{season_name}' not found!"
-        ) from ex
+        raise NotFoundException(TYPE, data_name=season_name) from ex
 
     season_json = season.model_dump()
     if season.team:
@@ -94,7 +92,7 @@ def create_season(season: Season, session: Session = Depends(get_session)) -> Se
     :return: The created season instance.
     """
     if not (season.name and season.team_id):
-        raise HTTPException(status_code=400, detail="Invalid season")
+        raise IncompleteException(TYPE)
 
     session.add(season)
     session.commit()
@@ -115,14 +113,11 @@ def delete_season(
     :param session: The db session.
     :return: {"ok": True} if succeeded.
     """
-    if not auth_is_admin(token):
-        raise HTTPException(status_code=401, detail="Invalid token or role")
+    auth_is_admin(token)
 
     season = session.get(Season, season_id)
     if not season:
-        raise HTTPException(
-            status_code=404, detail=f"Season with id '{season_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=season_id)
 
     session.delete(season)
     session.commit()
@@ -142,9 +137,7 @@ def update_season(
     """
     season_db = session.get(Season, season_id)
     if not season_db:
-        raise HTTPException(
-            status_code=404, detail=f"Season with id '{season_id}' not found!"
-        )
+        raise NotFoundException(TYPE, data_id=season_id)
 
     season_data = season.model_dump(exclude_unset=True)
     season_db.sqlmodel_update(season_data)
