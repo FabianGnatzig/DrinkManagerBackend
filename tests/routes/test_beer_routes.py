@@ -5,9 +5,6 @@ Description: Unittests of beer-routes.
 
 from unittest.mock import patch
 
-import pytest
-
-from exceptions import IncompleteException
 from tests.helper_methods import create_brewery, create_bring_beer, create_beer
 
 

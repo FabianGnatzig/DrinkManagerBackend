@@ -21,8 +21,8 @@ def auth_is_user(user_id: int, jwt_token: str):
         if user_id != decoded_jwt["user_id"]:
             raise InvalidUserException
 
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        raise InvalidTokenException
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
 
 
 def auth_is_admin(jwt_token: str):
@@ -36,8 +36,8 @@ def auth_is_admin(jwt_token: str):
         if decoded_jwt["role"] != "admin":
             raise InvalidRoleException
 
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        raise InvalidTokenException
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
 
 
 def auth_is_user_or_admin(user_id: int, jwt_token: str):

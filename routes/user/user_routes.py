@@ -6,16 +6,14 @@ Description: HTTP Routes of user.
 from datetime import datetime
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
 from dependencies import get_session, oauth2_scheme, pwd_context
-from auth.auth_methods import auth_is_user, auth_is_admin, auth_is_user_or_admin
+from auth.auth_methods import auth_is_admin, auth_is_user_or_admin
 from exceptions import (
     InvalidException,
     NotFoundException,
-    InvalidRoleException,
-    InvalidTokenException,
 )
 from models.user_models import User, UserUpdate
 

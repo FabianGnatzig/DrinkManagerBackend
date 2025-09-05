@@ -5,7 +5,7 @@ Description: HTTP routes of brewery's.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
 from auth.auth_methods import auth_is_admin

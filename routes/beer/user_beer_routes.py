@@ -5,7 +5,7 @@ Description: HTTP routes of user beer.
 
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi import APIRouter, Query, Depends
 from sqlmodel import select, Session
 
 from auth.auth_methods import auth_is_admin
