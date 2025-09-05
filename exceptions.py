@@ -62,6 +62,9 @@ class InvalidException(HTTPException):
 
 
 class InvalidTokenException(HTTPException):
+    """
+    Invalid token exception.
+    """
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -70,6 +73,9 @@ class InvalidTokenException(HTTPException):
 
 
 class InvalidRoleException(HTTPException):
+    """
+    Invalid role exception.
+    """
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -78,6 +84,9 @@ class InvalidRoleException(HTTPException):
 
 
 class InvalidUserException(HTTPException):
+    """
+    Invalid user exception.
+    """
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
