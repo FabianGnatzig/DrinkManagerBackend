@@ -75,7 +75,7 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a beer with ID.
     :param beer_id: ID of beer to search for.
-    :param session: The db session.
+    :param session: DB session.
     :return: Dictionary with beer and referenced brewery.
     """
     beer = session.get(Beer, beer_id)
