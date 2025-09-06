@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.5.3] - 2025-09-06
+### Added
+- Automatic creation of example team and admin.
+- Role dependency on user creation
+
+
 ## [v0.5.2] - 2025-09-05
 ### Changed
 - Refactored exceptions and authentication

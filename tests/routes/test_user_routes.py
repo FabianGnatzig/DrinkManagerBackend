@@ -152,21 +152,22 @@ def test_add_user_with_wrong_birthday(client_fixture, get_admin_token):
     """
     Test add a user with wrong birthday.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    test_payload = {
+    wrong_payload = {
         "username": "name",
         "first_name": "first",
         "last_name": "last",
         "birthday": "22-2-2025",
         "team_id": 1,
-        "password": "pswd",
-        "role": "test_role",
+        "password": "wrong_pswd",
+        "role": "wrong_test_role",
     }
 
     response = client_fixture.post(
         "/user/add",
-        json=test_payload,
+        json=wrong_payload,
         headers={"Authorization": f"Bearer {get_admin_token}"},
     )
     assert response.status_code == 400
