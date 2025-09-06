@@ -19,15 +19,16 @@ def test_read_team(client_fixture):
     assert len(response.json()) == 1
 
 
-def test_read_team_id(client_fixture):
+def test_read_team_id(client_fixture, get_admin_token):
     """
     Test read team by id.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_team(client_fixture)
     create_season(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get("/team/1")
     assert response.status_code == 200
@@ -51,16 +52,17 @@ def test_read_wrong_team_id(client_fixture):
     assert response.json()["detail"] == f"TEAM with id '{wrong_id}' not found!"
 
 
-def test_read_team_name(client_fixture):
+def test_read_team_name(client_fixture, get_admin_token):
     """
     Tests read a team by name.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     team_name = "test_team"
     create_team(client_fixture)
     create_season(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get(f"/team/name/{team_name}")
     assert response.status_code == 200

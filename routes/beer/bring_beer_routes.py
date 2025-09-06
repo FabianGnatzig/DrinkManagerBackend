@@ -105,7 +105,7 @@ def update_bring_beer(
     bring_beer_id: int,
     bring_beer: BringBeerUpdate,
     session: Session = Depends(get_session),
-) -> type[BringBeer]:
+) -> BringBeer:
     """
     Updates the data of a bring beer instance.
     :param bring_beer_id: ID of the bring beer to be edited.

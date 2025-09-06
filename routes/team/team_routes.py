@@ -129,7 +129,7 @@ def delete_team(
 @router.patch("/{team_id}")
 def update_team(
     team_id: int, team: TeamUpdate, session: Session = Depends(get_session)
-) -> type[Team]:
+) -> Team:
     """
     Updates the data of a team.
     :param team_id: ID of a team to be edited.

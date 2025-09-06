@@ -130,7 +130,7 @@ def delete_event(
 @router.patch("/{event_id}")
 def update_event(
     event_id: int, event: Event, session: Session = Depends(get_session)
-) -> type[Event]:
+) -> Event:
     """
     Updates the data of an event.
     :param event_id: ID of the event to be edited.

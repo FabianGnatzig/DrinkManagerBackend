@@ -12,13 +12,14 @@ from tests.helper_methods import (
 )
 
 
-def test_read_user(client_fixture):
+def test_read_user(client_fixture, get_admin_token):
     """
     Test read user.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get("/user/all")
     assert response.status_code == 200
@@ -29,9 +30,10 @@ def test_read_user_id_as_admin(client_fixture, get_admin_token):
     """
     Test read user by id with admin authentication.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_beer(client_fixture)
     create_user_beer(client_fixture)
@@ -47,13 +49,15 @@ def test_read_user_id_as_admin(client_fixture, get_admin_token):
     assert response.json()["user_beer"]
 
 
-def test_read_user_id_as_user(client_fixture, get_user_token):
+def test_read_user_id_as_user(client_fixture, get_user_token, get_admin_token):
     """
     Test read user by id with admin authentication.
     :param client_fixture: Test client.
+    :param get_user_token: Test user token.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_beer(client_fixture)
     create_user_beer(client_fixture)
@@ -77,7 +81,7 @@ def test_read_wrong_user_id(client_fixture, get_admin_token):
     """
     wrong_id = "324234"
 
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get(
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_admin_token}"}
@@ -86,16 +90,18 @@ def test_read_wrong_user_id(client_fixture, get_admin_token):
     assert response.json()["detail"] == f"USER with id '{wrong_id}' not found!"
 
 
-def test_auth_read_wrong_user_id(client_fixture, get_user_token):
+def test_auth_read_wrong_user_id(client_fixture, get_user_token, get_admin_token):
     """
     Test read user by id as wrong user.
     :param client_fixture: Test client.
+    :param get_user_token: Test user token.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_id = "2"
 
-    create_user(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get(
         f"/user/{wrong_id}", headers={"Authorization": f"Bearer {get_user_token}"}
@@ -104,15 +110,16 @@ def test_auth_read_wrong_user_id(client_fixture, get_user_token):
     assert response.json()["detail"] == "Invalid user"
 
 
-def test_read_user_name(client_fixture):
+def test_read_user_name(client_fixture, get_admin_token):
     """
     Tests read a user by name.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     user_name = "name"
     create_team(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_beer(client_fixture)
     create_user_beer(client_fixture)
@@ -125,22 +132,23 @@ def test_read_user_name(client_fixture):
     assert response.json()["user_beer"]
 
 
-def test_read_wrong_user_name(client_fixture):
+def test_read_wrong_user_name(client_fixture, get_admin_token):
     """
     Test read wrong user by name.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     wrong_name = "wrong"
 
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get(f"/user/name/{wrong_name}")
     assert response.status_code == 404
     assert response.json()["detail"] == f"USER with name '{wrong_name}' not found!"
 
 
-def test_add_user_with_wrong_birthday(client_fixture):
+def test_add_user_with_wrong_birthday(client_fixture, get_admin_token):
     """
     Test add a user with wrong birthday.
     :param client_fixture: Test client.
@@ -156,7 +164,11 @@ def test_add_user_with_wrong_birthday(client_fixture):
         "role": "test_role",
     }
 
-    response = client_fixture.post("/user/add", json=test_payload)
+    response = client_fixture.post(
+        "/user/add",
+        json=test_payload,
+        headers={"Authorization": f"Bearer {get_admin_token}"},
+    )
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid birthday"
 
@@ -168,7 +180,7 @@ def test_delete_user(client_fixture, get_admin_token):
     :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.delete(
         "/user/1", headers={"Authorization": f"Bearer {get_admin_token}"}
@@ -209,13 +221,14 @@ def test_delete_user_invalid_token(client_fixture, get_invalid_token):
     assert response.json()["detail"] == "Invalid token"
 
 
-def test_update_user_name(client_fixture):
+def test_update_user_name(client_fixture, get_admin_token):
     """
     Test the update of a user.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     new_name = "new_test_user"
     test_payload = {"first_name": f"{new_name}"}

@@ -106,7 +106,7 @@ def update_beer(
     user_beer_id: int,
     user_beer: UserBeerUpdate,
     session: Session = Depends(get_session),
-) -> type[UserBeer]:
+) -> UserBeer:
     """
     Updates the data of a user beer.
     :param user_beer_id: ID of a user beer to be edited.

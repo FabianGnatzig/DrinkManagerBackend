@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 
 from auth.login_routes import router as login_router
+from models.team_models import Team
 from models.user_models import User
 from routes import (
     beer_router,
@@ -42,6 +43,12 @@ async def lifespan(_app: FastAPI):  # pragma: no cover
         admin = session.exec(stmt).first()
 
         if not admin:
+            team = session.get(Team, 1)
+            if not team:
+                team = Team(name="team")
+                session.add(team)
+                session.commit()
+
             admin_user = User(
                 username="admin",
                 role="admin",

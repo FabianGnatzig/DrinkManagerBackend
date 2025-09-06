@@ -72,10 +72,11 @@ def create_user_beer(client: TestClient):
     return response
 
 
-def create_user(client: TestClient):
+def create_user(client: TestClient, token):
     """
     Creates a user.
     :param client: Test client.
+    :param token: Token for authentication.
     :return: Response from backend.
     """
     test_payload = {
@@ -85,10 +86,12 @@ def create_user(client: TestClient):
         "birthday": "2025-08-21",
         "team_id": 1,
         "password": "pswd",
-        "role": "test_role",
+        "role": "admin",
     }
 
-    response = client.post("/user/add", json=test_payload)
+    response = client.post(
+        "/user/add", json=test_payload, headers={"Authorization": f"Bearer {token}"}
+    )
     return response
 
 

@@ -8,35 +8,43 @@ from fastapi import HTTPException
 import pytest
 from sqlmodel import Session
 
-from auth.auth_methods import is_user, is_admin, is_user_or_admin
+from auth.auth_methods import (
+    is_user,
+    is_admin,
+    is_user_or_admin,
+    is_manager,
+    is_admin_or_manager,
+)
 from auth.login_routes import authenticate_user
 from exceptions import InvalidUserException, InvalidTokenException, InvalidRoleException
 from tests.helper_methods import create_user, create_team
 
 
-def test_authenticate_user(session: Session, client_fixture):
+def test_authenticate_user(session: Session, client_fixture, get_admin_token):
     """
     Test the authentication of a user.
     :param session: Test session.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
 
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     user = authenticate_user(session, "name", "pswd")
     assert user["first_name"] == "first"
-    assert user["role"] == "test_role"
+    assert user["role"] == "admin"
 
 
-def test_authenticate_wrong_password(session: Session, client_fixture):
+def test_authenticate_wrong_password(session: Session, client_fixture, get_admin_token):
     """
     Test the failure of authentication of a user.
     :param session: Test session.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
 
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     with pytest.raises(HTTPException) as info:
         authenticate_user(session, "name", "wrong")
@@ -44,27 +52,29 @@ def test_authenticate_wrong_password(session: Session, client_fixture):
     assert info.value.status_code == 401
 
 
-def test_authenticate_wrong_user(session: Session, client_fixture):
+def test_authenticate_wrong_user(session: Session, client_fixture, get_admin_token):
     """
     Test the failure of authentication of a not existing user.
     :param session: Test session.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
 
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     with pytest.raises(HTTPException):
         authenticate_user(session, "wrong", "wrong")
 
 
-def test_login_success(client_fixture):
+def test_login_success(client_fixture, get_admin_token):
     """
     Test the successful login.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_team(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.post(
         "/auth/token",
@@ -78,14 +88,15 @@ def test_login_success(client_fixture):
     assert body["token_type"] == "bearer"
 
 
-def test_login_invalid_password(client_fixture):
+def test_login_invalid_password(client_fixture, get_admin_token):
     """
     Tests the login with an invalid password.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_team(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.post(
         "/auth/token",
@@ -178,3 +189,61 @@ def test_is_user_or_admin_invalid_token(get_invalid_token):
     """
     with pytest.raises(InvalidTokenException):
         is_user_or_admin(12, get_invalid_token)
+
+
+def test_auth_is_manager(get_manager_token):
+    """
+    Test if the token has a manager user.
+    :param get_manager_token: Test manager token.
+    :return: None
+    """
+    assert not is_manager(get_manager_token)
+
+
+def test_auth_is_not_manager(get_user_token):
+    """
+    Test if the token has not a manager user.
+    :param get_user_token: Test user token.
+    :return: None
+    """
+    with pytest.raises(InvalidRoleException):
+        is_manager(get_user_token)
+
+
+def test_is_invalid_manager(get_invalid_token):
+    """
+    Test if the token is invalid token.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    with pytest.raises(InvalidTokenException):
+        is_manager(get_invalid_token)
+
+
+def test_is_admin_or_manager(get_manager_token):
+    """
+    Test if the token is a manager user.
+    :param get_manager_token: Test manager token.
+    :return: None
+    """
+    assert not is_admin_or_manager(get_manager_token)
+
+
+def test_is_invalid_admin_or_manager(get_invalid_token):
+    """
+    Test if the token is invalid token.
+    :param get_invalid_token: Test invalid token.
+    :return: None
+    """
+    with pytest.raises(InvalidTokenException):
+        is_admin_or_manager(get_invalid_token)
+
+
+def test_is_not_admin_or_manager(get_user_token):
+    """
+    Test if the token is not a manager user.
+    :param get_user_token: Test user token.
+    :return: None
+    """
+    with pytest.raises(InvalidRoleException):
+        is_admin_or_manager(get_user_token)

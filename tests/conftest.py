@@ -73,6 +73,16 @@ def get_user_token():
 
 
 @pytest.fixture
+def get_manager_token():
+    """
+    Create an JWT-Token with manager role.
+    :return: Admin JWT-Token.
+    """
+    token = create_access_token({"sub": "alice", "user_id": 1, "role": "manager"})
+    return token
+
+
+@pytest.fixture
 def get_invalid_token():
     """
     Creates an invalid JWT-Token.

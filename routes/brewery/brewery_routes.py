@@ -134,7 +134,7 @@ def delete_brewery(
 @router.patch("/{brewery_id}")
 def update_brewery(
     brewery_id: int, brewery: BreweryUpdate, session: Session = Depends(get_session)
-) -> type[Brewery]:
+) -> Brewery:
     """
     Updates the data of a brewery.
     :param brewery_id: ID of a brewery to be edited.

@@ -127,7 +127,7 @@ def delete_season(
 @router.patch("/{season_id}")
 def update_season(
     season_id: int, season: SeasonUpdate, session: Session = Depends(get_session)
-) -> type[Season]:
+) -> Season:
     """
     Updates the data of a season.
     :param season_id: ID of the season to be edited.
