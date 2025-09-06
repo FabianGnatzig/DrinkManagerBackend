@@ -9,12 +9,12 @@ from dependencies import SECRET_KEY, ALGORITHM
 from exceptions import InvalidUserException, InvalidTokenException, InvalidRoleException
 
 
-def auth_is_user(user_id: int, jwt_token: str):
+def is_user(user_id: int, jwt_token: str):
     """
     Helper method for authenticate if the user access its data.
     :param user_id: ID of user that will be accessed.
     :param jwt_token: JWT-Token of the user that access.
-    :return: True if it is the user, False if not.
+    :return: None
     """
     try:
         decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -25,11 +25,11 @@ def auth_is_user(user_id: int, jwt_token: str):
         raise InvalidTokenException from ex
 
 
-def auth_is_admin(jwt_token: str):
+def is_admin(jwt_token: str):
     """
     Helper method for authenticate the admin.
     :param jwt_token: JWT-Token of the user that access.
-    :return: True if the user is admin, False if not.
+    :return: None.
     """
     try:
         decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -40,7 +40,22 @@ def auth_is_admin(jwt_token: str):
         raise InvalidTokenException from ex
 
 
-def auth_is_user_or_admin(user_id: int, jwt_token: str):
+def is_manager(jwt_token: str):
+    """
+    Helper method for authenticate a manager.
+    :param jwt_token: JWT-Token of the user that access.
+    :return: None.
+    """
+    try:
+        decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if decoded_jwt["role"] != "manager":
+            raise InvalidRoleException
+
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
+
+
+def is_user_or_admin(user_id: int, jwt_token: str):
     """
     Helper method for authenticate if the user access its data.
     :param user_id: ID of user that access.
@@ -48,11 +63,28 @@ def auth_is_user_or_admin(user_id: int, jwt_token: str):
     :return: None
     """
     try:
-        auth_is_admin(jwt_token)
+        is_admin(jwt_token)
         return
     except InvalidRoleException:
         pass
     except InvalidTokenException as ex:
         raise ex
 
-    auth_is_user(user_id, jwt_token)
+    is_user(user_id, jwt_token)
+
+
+def is_admin_or_manager(token: str):
+    """
+    Helper method for authenticate if the user is admin or manager.
+    :param token: JWT-Token of the user that access.
+    :return: None
+    """
+    try:
+        is_admin(token)
+        return
+    except InvalidRoleException:
+        pass
+    except InvalidTokenException as ex:
+        raise ex
+
+    is_manager(token)

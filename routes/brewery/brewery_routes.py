@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import get_session, oauth2_scheme
 from exceptions import IncompleteException, NotFoundException
 from models.brewery_models import Brewery, BreweryUpdate
@@ -26,9 +26,9 @@ def read_brewer(
 ) -> list:
     """
     Reads all brewery instances.
-    :param session: The db session.
-    :param offset: The start offset.
-    :param limit: The maximum query.
+    :param session: DB session.
+    :param offset: Start offset.
+    :param limit: Maximum query.
     :return: List of all brewery.
     """
     breweries = session.exec(select(Brewery).offset(offset).limit(limit)).all()
@@ -49,9 +49,9 @@ def create_brewery(
 ) -> Brewery:
     """
     Creates a brewery instance.
-    :param brewery: The brewery instance.
-    :param session: The db session.
-    :return: The created brewery instance.
+    :param brewery: Brewery instance.
+    :param session: DB session.
+    :return: Created brewery instance.
     """
     if not (brewery.name and brewery.city and brewery.country):
         raise IncompleteException(TYPE)
@@ -66,8 +66,8 @@ def create_brewery(
 def read_brewery_id(brewery_id: int, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a brewery with id.
-    :param brewery_id: The id of a beer to search for.
-    :param session: The db session.
+    :param brewery_id: ID of a beer to search for.
+    :param session: DB session.
     :return: Dictionary with brewery and referenced beer.
     """
     brewery = session.get(Brewery, brewery_id)
@@ -88,8 +88,8 @@ def read_brewery_name(
 ) -> dict:
     """
     Searches for a brewery with name.
-    :param brewery_name: The name of a brewery to search for.
-    :param session: The db session.
+    :param brewery_name: Name of a brewery to search for.
+    :param session: DB session.
     :return: Dictionary with brewery and referenced beer.
     """
     statement = select(Brewery).where(Brewery.name == brewery_name)
@@ -111,15 +111,15 @@ def delete_brewery(
     brewery_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-):
+) -> dict:
     """
-    Deletes a brewery with id.
-    :param brewery_id: The id of a brewery to be deleted.
+    Deletes a brewery with ID.
+    :param brewery_id: ID of a brewery to be deleted.
     :param token: User jwt-token.
-    :param session: The db session.
+    :param session: DB session.
     :return: "ok":True if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     brewery = session.get(Brewery, brewery_id)
 
@@ -134,13 +134,13 @@ def delete_brewery(
 @router.patch("/{brewery_id}")
 def update_brewery(
     brewery_id: int, brewery: BreweryUpdate, session: Session = Depends(get_session)
-):
+) -> Brewery:
     """
     Updates the data of a brewery.
-    :param brewery_id: The id of a brewery to be edited.
-    :param brewery: The edited brewery data.
-    :param session: The db session.
-    :return: The edited brewery instance.
+    :param brewery_id: ID of a brewery to be edited.
+    :param brewery: Edited brewery data.
+    :param session: DB session.
+    :return: Edited brewery instance.
     """
     brewery_db = session.get(Brewery, brewery_id)
 
@@ -149,7 +149,6 @@ def update_brewery(
 
     brewery_data = brewery.model_dump(exclude_unset=True)
     brewery_db.sqlmodel_update(brewery_data)
-    session.add(brewery_db)
     session.commit()
     session.refresh(brewery_db)
     return brewery_db

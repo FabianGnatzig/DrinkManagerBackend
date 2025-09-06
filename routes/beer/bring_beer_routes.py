@@ -8,7 +8,7 @@ from typing import Sequence, Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import get_session, oauth2_scheme
 from exceptions import NotFoundException
 from models.beer_models import BringBeer, BringBeerUpdate
@@ -26,7 +26,7 @@ def read_bring_beers(
 ) -> Sequence[BringBeer]:
     """
     Reads all bring beer instances.
-    :param session: The db session.
+    :param session: DB session.
     :param offset: Start offset.
     :param limit: Query limit.
     :return: List of all bring beer instances.
@@ -43,7 +43,7 @@ def read_bring_beer_id(
     """
     Searches for a bring beer with id.
     :param bring_beer_id: ID of a bring beer instance.
-    :param session: The db session.
+    :param session: DB session.
     :return: Dictionary with bring beer and related instances.
     """
     bring_beer = session.get(BringBeer, bring_beer_id)
@@ -66,9 +66,9 @@ def create_bring_beer(
 ) -> BringBeer:
     """
     Creates a bring beer instance.
-    :param bring_beer: The bring beer instance.
-    :param session: The db session.
-    :return: The created bring beer instance.
+    :param bring_beer: Bring beer instance.
+    :param session: DB session.
+    :return: Created bring beer instance.
     """
     session.add(bring_beer)
     session.commit()
@@ -86,10 +86,10 @@ def delete_bring_beer(
     Deletes a bring beer with id.
     :param bring_beer_id: ID of bring beer instance.
     :param token: User jwt-token.
-    :param session: The db session.
+    :param session: DB session.
     :return: {"ok": True} if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     bring_beer = session.get(BringBeer, bring_beer_id)
     if not bring_beer:
@@ -109,9 +109,9 @@ def update_bring_beer(
     """
     Updates the data of a bring beer instance.
     :param bring_beer_id: ID of the bring beer to be edited.
-    :param bring_beer: The edited bring beer data.
-    :param session: The db session.
-    :return: The edited bring beer instance.
+    :param bring_beer: Edited bring beer data.
+    :param session: DB session.
+    :return: Edited bring beer instance.
     """
     bring_beer_db = session.get(BringBeer, bring_beer_id)
     if not bring_beer_db:
@@ -119,7 +119,6 @@ def update_bring_beer(
 
     bring_beer_data = bring_beer.model_dump(exclude_unset=True)
     bring_beer_db.sqlmodel_update(bring_beer_data)
-    session.add(bring_beer_db)
     session.commit()
     session.refresh(bring_beer_db)
     return bring_beer_db

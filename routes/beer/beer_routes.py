@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Depends, HTTPException, UploadFile, File
 from sqlmodel import select, Session
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import (
     get_session,
     client,
@@ -33,9 +33,9 @@ def read_beers(
 ) -> list:
     """
     Reads all beer instances.
-    :param session: The db session.
-    :param offset: The start offset.
-    :param limit: The maximum query.
+    :param session: DB session.
+    :param offset: Start offset.
+    :param limit: Maximum query size.
     :return: List of all beers.
     """
     beers_data = session.exec(select(Beer).offset(offset).limit(limit)).all()
@@ -57,9 +57,9 @@ def read_beers(
 def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
     """
     Creates a beer instance.
-    :param beer: The beer instance.
-    :param session: The db session.
-    :return: The created beer instance.
+    :param beer: Beer instance.
+    :param session: DB session.
+    :return: Created beer instance.
     """
     if not (beer.name and beer.brewery_id and beer.beer_code):
         raise IncompleteException(TYPE)
@@ -73,9 +73,9 @@ def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
 @router.get("/{beer_id}")
 def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
     """
-    Searches for a beer with beer_id.
-    :param beer_id: The beer_id to search for.
-    :param session: The db session.
+    Searches for a beer with ID.
+    :param beer_id: ID of beer to search for.
+    :param session: DB session.
     :return: Dictionary with beer and referenced brewery.
     """
     beer = session.get(Beer, beer_id)
@@ -95,8 +95,8 @@ def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
 def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a beer with beer_code.
-    :param beer_code: The beer_code to search for.
-    :param session: The db session.
+    :param beer_code: Beer_code to search for.
+    :param session: DB session.
     :return: Dictionary with beer and referenced brewery.
     """
     statement = select(Beer).where(Beer.beer_code == beer_code)
@@ -118,8 +118,8 @@ def read_beer_code(beer_code: str, session: Session = Depends(get_session)) -> d
 def read_beer_name(beer_name: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a beer with beer_name.
-    :param beer_name: The name of a beer to search for.
-    :param session: The db session.
+    :param beer_name: Name of a beer to search for.
+    :param session: DB session.
     :return: Dictionary with beer and referenced brewery.
     """
     statement = select(Beer).where(Beer.name == beer_name)
@@ -142,15 +142,15 @@ def delete_beer(
     beer_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-):
+) -> dict:
     """
-    Deletes a beer with id.
-    :param beer_id: The id of a beer to be deleted.
-    :param session: The db session.
+    Deletes a beer with ID.
+    :param beer_id: ID of a beer to be deleted.
+    :param session: DB session.
     :param token: User jwt-token.
     :return: "ok": True if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     beer = session.get(Beer, beer_id)
     if not beer:
@@ -164,13 +164,13 @@ def delete_beer(
 @router.patch("/{beer_id}")
 def update_beer(
     beer_id: int, beer: BeerUpdate, session: Session = Depends(get_session)
-):
+) -> Beer:
     """
     Updates the data of a beer.
-    :param beer_id: The id of a beer to be edited.
-    :param beer: The edited beer data.
-    :param session: The db session.
-    :return: The edited beer instance.
+    :param beer_id: ID of a beer to be edited.
+    :param beer: Edited beer data.
+    :param session: DB session.
+    :return: Edited beer instance.
     """
     beer_db = session.get(Beer, beer_id)
     if not beer_db:
@@ -178,7 +178,6 @@ def update_beer(
 
     beer_data = beer.model_dump(exclude_unset=True)
     beer_db.sqlmodel_update(beer_data)
-    session.add(beer_db)
     session.commit()
     session.refresh(beer_db)
     return beer_db
@@ -189,7 +188,7 @@ def create_beer_by_image(
     image: UploadFile,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-):
+) -> str | Beer:
     """
     Checks if the beer exists. If not, add the data to the db.
     :param image: File that was uploaded.
@@ -197,7 +196,7 @@ def create_beer_by_image(
     :param session: DB session.
     :return: New created beer data.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     data = get_data_from_open_ai(image)
     if "details" in data.keys():
@@ -231,11 +230,11 @@ def create_beer_by_image(
     return new_beer
 
 
-def get_data_from_open_ai(image: File):  # pragma: no cover
+def get_data_from_open_ai(image: File) -> dict:  # pragma: no cover
     """
     Gets the data from a beer label with the help of gpt-4o.
     :param image: Image data of the label.
-    :return: None
+    :return: Dictionary with beer data.
     """
     file = client.files.create(file=(image.filename, image.file), purpose="user_data")
 

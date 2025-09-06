@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import get_session, oauth2_scheme
 from exceptions import NotFoundException, IncompleteException
 from models.season_models import Season, SeasonUpdate
@@ -25,9 +25,9 @@ def read_all_seasons(
 ) -> list:
     """
     Reads all season instances.
-    :param session: The db session.
-    :param offset: The start offset.
-    :param limit: The maximum query.
+    :param session: DB session.
+    :param offset: Start offset.
+    :param limit: Maximum query size.
     :return: List of all seasons.
     """
     statement = select(Season).offset(offset).limit(limit)
@@ -44,9 +44,9 @@ def read_all_seasons(
 @router.get("/{season_id}")
 def get_season_id(season_id: int, session: Session = Depends(get_session)) -> dict:
     """
-    Searches for a season with id.
-    :param season_id: The id of a season to search for.
-    :param session: The db session.
+    Searches for a season with ID.
+    :param season_id: ID of a season to search for.
+    :param session: DB session.
     :return: Dictionary with season and team.
     """
     season = session.get(Season, season_id)
@@ -65,8 +65,8 @@ def get_season_id(season_id: int, session: Session = Depends(get_session)) -> di
 def get_season_name(season_name: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a season with name.
-    :param season_name: The name of a season to search for.
-    :param session: The db session.
+    :param season_name: Name of a season to search for.
+    :param session: DB session.
     :return: Dictionary with season and team.
     """
     statement = select(Season).where(Season.name == season_name)
@@ -87,9 +87,9 @@ def get_season_name(season_name: str, session: Session = Depends(get_session)) -
 def create_season(season: Season, session: Session = Depends(get_session)) -> Season:
     """
     Creates a season instance.
-    :param season: The season instance.
-    :param session: The db session.
-    :return: The created season instance.
+    :param season: Season instance.
+    :param session: DB session.
+    :return: Created season instance.
     """
     if not (season.name and season.team_id):
         raise IncompleteException(TYPE)
@@ -107,13 +107,13 @@ def delete_season(
     session: Session = Depends(get_session),
 ) -> dict:
     """
-    Deletes a season with id.
-    :param season_id: The id of a season to be deleted.
+    Deletes a season with ID.
+    :param season_id: ID of a season to be deleted.
     :param token: User jwt-token.
-    :param session: The db session.
+    :param session: DB session.
     :return: {"ok": True} if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     season = session.get(Season, season_id)
     if not season:
@@ -130,10 +130,10 @@ def update_season(
 ) -> Season:
     """
     Updates the data of a season.
-    :param season_id: The id of the season to be edited.
-    :param season: The edited season data.
-    :param session: The db session.
-    :return: The edited season instance.
+    :param season_id: ID of the season to be edited.
+    :param season: Edited season data.
+    :param session: DB session.
+    :return: Edited season instance.
     """
     season_db = session.get(Season, season_id)
     if not season_db:
@@ -141,7 +141,6 @@ def update_season(
 
     season_data = season.model_dump(exclude_unset=True)
     season_db.sqlmodel_update(season_data)
-    session.add(season_db)
     session.commit()
     session.refresh(season_db)
     return season_db

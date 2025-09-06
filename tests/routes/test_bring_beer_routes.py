@@ -22,15 +22,16 @@ def test_read_empty_bring_beers(client_fixture):
     assert response.json() == []
 
 
-def test_read_bring_beer_id(client_fixture):
+def test_read_bring_beer_id(client_fixture, get_admin_token):
     """
     Test read bring_beer by id.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_bring_beer(client_fixture)
     create_beer(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_event(client_fixture)
 
     response = client_fixture.get("/bringbeer/1")

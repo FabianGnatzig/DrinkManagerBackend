@@ -17,13 +17,14 @@ def test_read_empty_user_beers(client_fixture):
     assert response.json() == []
 
 
-def test_read_user_beer_id(client_fixture):
+def test_read_user_beer_id(client_fixture, get_admin_token):
     """
     Test read user_beer by id.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_user_beer(client_fixture)
 
@@ -53,7 +54,7 @@ def test_delete_user_beer(client_fixture, get_admin_token):
     :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_user_beer(client_fixture)
 
@@ -97,13 +98,14 @@ def test_delete_user_beer_invalid_token(client_fixture, get_invalid_token):
     assert response.json()["detail"] == "Invalid token"
 
 
-def test_update_user_beer_name(client_fixture):
+def test_update_user_beer_name(client_fixture, get_admin_token):
     """
     Test the update of a user_beer.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_user_beer(client_fixture)
     new_id = 2
@@ -114,13 +116,14 @@ def test_update_user_beer_name(client_fixture):
     assert response.json()["user_id"] == new_id
 
 
-def test_update_wrong_user_beer(client_fixture):
+def test_update_wrong_user_beer(client_fixture, get_admin_token):
     """
     Test the update of a user_beer exception.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_bring_beer(client_fixture)
     create_user_beer(client_fixture)
     wrong_id = 321321

@@ -8,7 +8,7 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Query, Depends
 from sqlmodel import select, Session
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import get_session, oauth2_scheme
 from exceptions import NotFoundException
 from models.beer_models import UserBeer, UserBeerUpdate
@@ -27,9 +27,9 @@ def read_user_beers(
 ) -> Sequence[UserBeer]:
     """
     Reads all user beer instances.
-    :param session: The db session.
-    :param offset: The start offset.
-    :param limit: The maximum query.
+    :param session: DB session.
+    :param offset: Start offset.
+    :param limit: Maximum query size.
     :return: List of all user beers.
     """
     user_beer = session.exec(select(UserBeer).offset(offset).limit(limit)).all()
@@ -42,9 +42,9 @@ def create_user_beer(
 ) -> UserBeer:
     """
     Creates a user beer instance.
-    :param user_beer: The user beer instance.
-    :param session: The db session.
-    :return: The created user beer instance.
+    :param user_beer: User beer instance.
+    :param session: DB session.
+    :return: Created user beer instance.
     """
     user = session.get(User, user_beer.user_id)
     user_beer.user = user if user else None
@@ -60,8 +60,8 @@ def read_user_beer_id(
 ) -> dict:
     """
     Searches for a user beer with beer_id.
-    :param user_beer_id: The user_beer_id to search for.
-    :param session: The db session.
+    :param user_beer_id: User_beer_id to search for.
+    :param session: DB session.
     :return: Dictionary with user beer and referenced user and bring beer.
     """
     user_beer = session.get(UserBeer, user_beer_id)
@@ -82,7 +82,7 @@ def delete_beer(
     user_beer_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-):
+) -> dict:
     """
     Deletes a user beer with id.
     :param user_beer_id: ID of a user beer to be deleted.
@@ -90,7 +90,7 @@ def delete_beer(
     :param session: DB session.
     :return: "ok": True if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     user_beer = session.get(UserBeer, user_beer_id)
     if not user_beer:
@@ -106,13 +106,13 @@ def update_beer(
     user_beer_id: int,
     user_beer: UserBeerUpdate,
     session: Session = Depends(get_session),
-):
+) -> UserBeer:
     """
     Updates the data of a user beer.
-    :param user_beer_id: The id of a user beer to be edited.
-    :param user_beer: The edited user beer data.
-    :param session: The db session.
-    :return: The edited user beer instance.
+    :param user_beer_id: ID of a user beer to be edited.
+    :param user_beer: Edited user beer data.
+    :param session: DB session.
+    :return: Edited user beer instance.
     """
     user_beer_db = session.get(UserBeer, user_beer_id)
     if not user_beer_db:

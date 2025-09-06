@@ -14,13 +14,14 @@ from tests.helper_methods import (
 )
 
 
-def test_read_open_beers(client_fixture):
+def test_read_open_beers(client_fixture, get_admin_token):
     """
     Tests to read all open beer (unlinked user_beer).
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
     create_user_beer(client_fixture)
 
     response = client_fixture.get("/service/all_open_beer")
@@ -29,14 +30,15 @@ def test_read_open_beers(client_fixture):
     assert response.json()[0]["user"] == "first last"
 
 
-def test_read_beer_amounts(client_fixture):
+def test_read_beer_amounts(client_fixture, get_admin_token):
     """
     Test read the amount of linked user- and bring-beer of a user.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     create_beer(client_fixture)
-    create_user(client_fixture)
+    create_user(client_fixture, get_admin_token)
 
     response = client_fixture.get("/service/beer_amount")
     assert response.status_code == 200
@@ -52,10 +54,11 @@ def test_read_beer_amounts(client_fixture):
     assert response.json()[0]["amount"] == 1
 
 
-def test_check_birthday(client_fixture):
+def test_check_birthday(client_fixture, get_admin_token):
     """
     Test the check birthday route.
     :param client_fixture: Test client.
+    :param get_admin_token: Test admin token.
     :return: None
     """
     date = datetime.today().date()
@@ -68,21 +71,33 @@ def test_check_birthday(client_fixture):
         "password": "pswd",
         "role": "test_role",
     }
-    response = client_fixture.post("/user/add", json=test_payload)
+    response = client_fixture.post(
+        "/user/add",
+        json=test_payload,
+        headers={"Authorization": f"Bearer {get_admin_token}"},
+    )
     assert response.status_code == 200
 
     test_payload["username"] = "b"
     test_payload["first_name"] = "fb"
     test_payload["last_name"] = "lb"
     test_payload["birthday"] = f"{date + relativedelta(months=1)}"
-    response = client_fixture.post("/user/add", json=test_payload)
+    response = client_fixture.post(
+        "/user/add",
+        json=test_payload,
+        headers={"Authorization": f"Bearer {get_admin_token}"},
+    )
     assert response.status_code == 200
 
     test_payload["username"] = "c"
     test_payload["first_name"] = "fc"
     test_payload["last_name"] = "lc"
     test_payload["birthday"] = f"{date}"
-    response = client_fixture.post("/user/add", json=test_payload)
+    response = client_fixture.post(
+        "/user/add",
+        json=test_payload,
+        headers={"Authorization": f"Bearer {get_admin_token}"},
+    )
     assert response.status_code == 200
 
     response = client_fixture.get("/user/all")
