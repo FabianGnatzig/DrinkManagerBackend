@@ -20,7 +20,7 @@ from routes.user.user_routes import get_user_name
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
     Creates an JWT-Token with data.
     :param data: Data that should be included to the token.
@@ -37,7 +37,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def authenticate_user(session: Session, username: str, password: str):
+def authenticate_user(session: Session, username: str, password: str) -> dict:
     """
     Authentication of the user and its password.
     :param session: The db session.

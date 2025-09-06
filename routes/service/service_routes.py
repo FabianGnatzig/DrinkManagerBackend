@@ -21,7 +21,7 @@ router = APIRouter(prefix="/service", tags=["Service"])
 
 
 @router.get("/all_open_beer")
-def read_open_beer(session: Session = Depends(get_session)):
+def read_open_beer(session: Session = Depends(get_session)) -> list[UserBeer]:
     """
     Reads all unlinked user_beer. Unlinked user_beer are open beer.
     :param session: DB session.
@@ -53,7 +53,7 @@ def read_open_beer(session: Session = Depends(get_session)):
 
 
 @router.get("/beer_amount")
-def read_number_beer(session: Session = Depends(get_session)):
+def read_number_beer(session: Session = Depends(get_session)) -> list[dict]:
     """
     Reads the beer amount of all users.
     :param session: DB Session.
@@ -86,7 +86,7 @@ def read_number_beer(session: Session = Depends(get_session)):
 
 
 @router.get("/check_birthday")
-def check_birthday(session: Session = Depends(get_session)):
+def check_birthday(session: Session = Depends(get_session)) -> bool:
     """
     Checks if a user has birthday and create an uer_beer.
     :param session: DB session.

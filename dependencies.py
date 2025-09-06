@@ -54,7 +54,7 @@ def get_session():
         yield session
 
 
-def get_json_from_open_ai_response(response: str):
+def get_json_from_open_ai_response(response: str) -> dict:
     """
     Creates a dictionary out of the response message from Open AI.
     :param response: Response message from Open AI.

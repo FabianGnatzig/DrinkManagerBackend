@@ -9,7 +9,7 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import get_session, oauth2_scheme
 from exceptions import NotFoundException, IncompleteException, InvalidException
 from models.event_models import Event
@@ -26,7 +26,7 @@ def read_all_events(
 ) -> Sequence[Event]:
     """
     Reads all event instances.
-    :param session: The db session.
+    :param session: DB session.
     :param offset: Start offset.
     :param limit: Query limit.
     :return: List of all events.
@@ -41,7 +41,7 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
     """
     Searches for an event with id.
     :param event_id: ID of an event.
-    :param session: The db session.
+    :param session: DB session.
     :return: Dictionary with event and related instances.
     """
     event = session.get(Event, event_id)
@@ -61,7 +61,7 @@ def get_event_name(event_name: str, session: Session = Depends(get_session)) -> 
     """
     Searches for an event with name.
     :param event_name: Name of an event to search for.
-    :param session: The db session.
+    :param session: DB session.
     :return: Dictionary with event and related instances.
     """
     statement = select(Event).where(Event.name == event_name)
@@ -82,9 +82,9 @@ def get_event_name(event_name: str, session: Session = Depends(get_session)) -> 
 def create_event(event_data: dict, session: Session = Depends(get_session)) -> Event:
     """
     Creates an event instance.
-    :param event_data: The event data.
-    :param session: The db session.
-    :return: The created event instance.
+    :param event_data: Event data.
+    :param session: DB session.
+    :return: Created event instance.
     """
     if event_data["name"] == "":
         raise IncompleteException(TYPE)
@@ -113,10 +113,10 @@ def delete_event(
     Deletes an event with id.
     :param event_id: ID of an event.
     :param token: User jwt-token.
-    :param session: The db session.
+    :param session: DB session.
     :return: {"ok": True} if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     event = session.get(Event, event_id)
     if not event:
@@ -130,12 +130,12 @@ def delete_event(
 @router.patch("/{event_id}")
 def update_event(
     event_id: int, event: Event, session: Session = Depends(get_session)
-) -> Event:
+) -> type[Event]:
     """
     Updates the data of an event.
     :param event_id: ID of the event to be edited.
     :param event: Edited event data.
-    :param session: The db session.
+    :param session: DB session.
     :return: Edited event instance.
     """
     event_db = session.get(Event, event_id)
@@ -144,7 +144,6 @@ def update_event(
 
     event_data = event.model_dump(exclude_unset=True)
     event_db.sqlmodel_update(event_data)
-    session.add(event_db)
     session.commit()
     session.refresh(event_db)
     return event_db

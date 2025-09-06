@@ -8,7 +8,7 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import auth_is_admin
+from auth.auth_methods import is_admin
 from dependencies import get_session, oauth2_scheme
 from exceptions import IncompleteException, NotFoundException
 from models.team_models import Team, TeamUpdate
@@ -26,9 +26,9 @@ def read_all_teams(
 ) -> Sequence[Team]:
     """
     Reads all team instances.
-    :param session: The db session.
-    :param offset: The start offset.
-    :param limit: The maximum query.
+    :param session: DB session.
+    :param offset: Start offset.
+    :param limit: Maximum query.
     :return: List of all teams.
     """
     statement = select(Team).offset(offset).limit(limit)
@@ -40,9 +40,9 @@ def read_all_teams(
 def create_team(team: Team, session: Session = Depends(get_session)) -> Team:
     """
     Creates a team instance.
-    :param team: The team instance.
-    :param session: The db session.
-    :return: The created team instance.
+    :param team: Team instance.
+    :param session: DB session.
+    :return: Created team instance.
     """
     if not team.name:
         raise IncompleteException(TYPE)
@@ -56,9 +56,9 @@ def create_team(team: Team, session: Session = Depends(get_session)) -> Team:
 @router.get("/{team_id}")
 def read_team_id(team_id: int, session: Session = Depends(get_session)) -> dict:
     """
-    Searches for a team with id.
-    :param team_id: The id of a team to search for.
-    :param session: The db session.
+    Searches for a team with ID.
+    :param team_id: ID of a team to search for.
+    :param session: DB session.
     :return: Dictionary with team and users.
     """
     team = session.get(Team, team_id)
@@ -81,8 +81,8 @@ def read_team_id(team_id: int, session: Session = Depends(get_session)) -> dict:
 def read_team_name(team_name: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a team with name.
-    :param team_name: The name of a team to search for.
-    :param session: The db session.
+    :param team_name: Name of a team to search for.
+    :param session: DB session.
     :return: Dictionary with team and users.
     """
     statement = select(Team).where(Team.name == team_name)
@@ -107,15 +107,15 @@ def delete_team(
     team_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-):
+) -> dict:
     """
-    Deletes a team with id.
-    :param team_id: The id of a team to be deleted.
+    Deletes a team with ID.
+    :param team_id: ID of a team to be deleted.
     :param token: User jwt-token.
-    :param session: The db session.
+    :param session: DB session.
     :return: "ok": True if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     team = session.get(Team, team_id)
     if not team:
@@ -129,13 +129,13 @@ def delete_team(
 @router.patch("/{team_id}")
 def update_team(
     team_id: int, team: TeamUpdate, session: Session = Depends(get_session)
-) -> Team:
+) -> type[Team]:
     """
     Updates the data of a team.
-    :param team_id: The id of a team to be edited.
-    :param team: The edited team data.
-    :param session: The db session.
-    :return: The edited team instance.
+    :param team_id: ID of a team to be edited.
+    :param team: Edited team data.
+    :param session: DB session.
+    :return: Edited team instance.
     """
     team_db = session.get(Team, team_id)
     if not team_db:

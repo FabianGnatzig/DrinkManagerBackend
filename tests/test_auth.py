@@ -8,7 +8,7 @@ from fastapi import HTTPException
 import pytest
 from sqlmodel import Session
 
-from auth.auth_methods import auth_is_user, auth_is_admin, auth_is_user_or_admin
+from auth.auth_methods import is_user, is_admin, is_user_or_admin
 from auth.login_routes import authenticate_user
 from exceptions import InvalidUserException, InvalidTokenException, InvalidRoleException
 from tests.helper_methods import create_user, create_team
@@ -118,7 +118,7 @@ def test_auth_is_user(get_user_token):
     :param get_user_token: Test user token.
     :return: None
     """
-    assert not auth_is_user(1, get_user_token)
+    assert not is_user(1, get_user_token)
 
 
 def test_auth_is_not_user(get_user_token):
@@ -128,7 +128,7 @@ def test_auth_is_not_user(get_user_token):
     :return: None
     """
     with pytest.raises(InvalidUserException):
-        auth_is_user(15, get_user_token)
+        is_user(15, get_user_token)
 
 
 def test_auth_user_with_invalid_token(get_invalid_token):
@@ -138,7 +138,7 @@ def test_auth_user_with_invalid_token(get_invalid_token):
     :return: None
     """
     with pytest.raises(InvalidTokenException):
-        auth_is_user(15, get_invalid_token)
+        is_user(15, get_invalid_token)
 
 
 def test_auth_is_admin(get_admin_token):
@@ -147,7 +147,7 @@ def test_auth_is_admin(get_admin_token):
     :param get_admin_token: Test admin token.
     :return: None
     """
-    assert not auth_is_admin(get_admin_token)
+    assert not is_admin(get_admin_token)
 
 
 def test_auth_is_not_admin(get_user_token):
@@ -157,7 +157,7 @@ def test_auth_is_not_admin(get_user_token):
     :return: None
     """
     with pytest.raises(InvalidRoleException):
-        auth_is_admin(get_user_token)
+        is_admin(get_user_token)
 
 
 def test_auth_admin_with_invalid_token(get_invalid_token):
@@ -167,7 +167,7 @@ def test_auth_admin_with_invalid_token(get_invalid_token):
     :return: None
     """
     with pytest.raises(InvalidTokenException):
-        auth_is_admin(get_invalid_token)
+        is_admin(get_invalid_token)
 
 
 def test_is_user_or_admin_invalid_token(get_invalid_token):
@@ -177,4 +177,4 @@ def test_is_user_or_admin_invalid_token(get_invalid_token):
     :return: None
     """
     with pytest.raises(InvalidTokenException):
-        auth_is_user_or_admin(12, get_invalid_token)
+        is_user_or_admin(12, get_invalid_token)

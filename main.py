@@ -8,9 +8,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from auth.login_routes import router as login_router
+from models.user_models import User
 from routes import (
     beer_router,
     bring_beer_router,
@@ -23,7 +24,7 @@ from routes import (
     service_router,
 )
 
-from dependencies import get_session, create_db
+from dependencies import get_session, create_db, engine, pwd_context
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -35,6 +36,25 @@ async def lifespan(_app: FastAPI):  # pragma: no cover
     Initialize the DB.
     """
     create_db()
+
+    with Session(engine) as session:
+        stmt = select(User).where(User.role == "admin")
+        admin = session.exec(stmt).first()
+
+        if not admin:
+            admin_user = User(
+                username="admin",
+                role="admin",
+                password=pwd_context.hash("admin"),
+                first_name="first_name",
+                last_name="last_name",
+                birthday="2000-01-01",
+                team_id=1,
+            )
+            session.add(admin_user)
+            session.commit()
+            session.refresh(admin_user)
+
     yield
 
 

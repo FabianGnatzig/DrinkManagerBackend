@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
 from dependencies import get_session, oauth2_scheme, pwd_context
-from auth.auth_methods import auth_is_admin, auth_is_user_or_admin
+from auth.auth_methods import is_admin, is_user_or_admin, is_admin_or_manager
 from exceptions import (
     InvalidException,
     NotFoundException,
@@ -29,9 +29,9 @@ def get_all_user(
 ) -> Sequence[User]:
     """
     Reads all user instances.
-    :param session: The db session.
-    :param offset: The start offset.
-    :param limit: The maximum query.
+    :param session: DB session.
+    :param offset: Start offset.
+    :param limit: Maximum query size.
     :return: List of all users.
     """
     statement = select(User).offset(offset).limit(limit)
@@ -40,19 +40,29 @@ def get_all_user(
 
 
 @router.post("/add")
-def create_user(user_data: dict, session: Session = Depends(get_session)) -> User:
+def create_user(
+    user_data: dict,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+) -> User:
     """
     Creates a user instance.
-    :param user_data: The user data.
-    :param session: The db session.
-    :return: The created user instance.
+    :param user_data: User data.
+    :param token: User token.
+    :param session: DB session.
+    :return: Created user instance.
     """
+    is_admin_or_manager(token)
+
     try:
         user_data["birthday"] = datetime.strptime(
             user_data["birthday"], "%Y-%m-%d"
         ).date()
     except Exception as ex:
         raise InvalidException("birthday") from ex
+
+    if user_data["role"] == ("admin" or "manager"):
+        is_admin(token)
 
     user_data["password"] = pwd_context.hash(user_data["password"])
 
@@ -71,9 +81,9 @@ def get_user_id(
 ) -> dict:
     """
     Searches for a user with id.
-    :param user_id: The id of a user to search for.
+    :param user_id: ID of a user to search for.
     :param token: Authentication token.
-    :param session: The db session.
+    :param session: DB session.
     :return: Dictionary with user and team.
     """
     user = session.get(User, user_id)
@@ -81,7 +91,7 @@ def get_user_id(
     if not user:
         raise NotFoundException(TYPE, data_id=user_id)
 
-    auth_is_user_or_admin(user_id, token)
+    is_user_or_admin(user_id, token)
 
     user_json = user.model_dump()
     if user.team:
@@ -97,8 +107,8 @@ def get_user_id(
 def get_user_name(user_name: str, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a user with last name.
-    :param user_name: The username of a user to search for.
-    :param session: The db session.
+    :param user_name: Username of a user to search for.
+    :param session: DB session.
     :return: Dictionary with user and team.
     """
     statement = select(User).where(User.username == user_name)
@@ -124,13 +134,13 @@ def delete_user(
     session: Session = Depends(get_session),
 ) -> dict:
     """
-    Deletes a user with id.
-    :param user_id: The id of a user to be deleted.
+    Deletes a user with ID.
+    :param user_id: ID of a user to be deleted.
     :param token: User jwt-token.
-    :param session: The db session.
+    :param session: DB session.
     :return: "ok": True if succeeded.
     """
-    auth_is_admin(token)
+    is_admin(token)
 
     user = session.get(User, user_id)
     if not user:
@@ -147,10 +157,10 @@ def update_user(
 ) -> User:
     """
     Updates the data of a user.
-    :param user_id: The id of a user to be edited.
-    :param user: The edited user data.
-    :param session: The db session.
-    :return: The edited user instance.
+    :param user_id: ID of a user to be edited.
+    :param user: Edited user data.
+    :param session: DB session.
+    :return: Edited user instance.
     """
     user_db = session.get(User, user_id)
     if not user_db:
