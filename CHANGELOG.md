@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.5.4] - 2025-09-11
+### Changed
+- Improved readme
+
+
 ## [v0.5.3] - 2025-09-06
 ### Added
 - Automatic creation of example team and admin.
