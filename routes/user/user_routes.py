@@ -15,6 +15,7 @@ from exceptions import (
     InvalidException,
     NotFoundException,
 )
+from models.team_models import Team
 from models.user_models import User, UserUpdate
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -60,6 +61,10 @@ def create_user(
         ).date()
     except Exception as ex:
         raise InvalidException("birthday") from ex
+
+    team = session.get(Team, user_data.get("team_id"))
+    if not team:
+        raise NotFoundException("TEAM", data_id=user_data.get("team_id"))
 
     if user_data["role"] == ("admin" or "manager"):
         is_admin(token)
