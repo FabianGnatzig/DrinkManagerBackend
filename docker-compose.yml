@@ -3,9 +3,9 @@ services:
     image: mysql:8
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PW}
-      MYSQL_ROOT_HOST: '%'
       MYSQL_DATABASE: beerbackend
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PW}
     ports:
       - "3306:3306"
     volumes:

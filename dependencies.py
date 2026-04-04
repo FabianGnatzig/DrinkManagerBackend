@@ -23,7 +23,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 SECRET_KEY = os.getenv("HASH_KEY")
 
-client = OpenAI(api_key=f"{os.getenv("OPEN_API_KEY")}")
+client = OpenAI(api_key=f"{os.getenv('OPEN_API_KEY')}")
 
 OPEN_AI_REQUEST = (
     "Can you get me following data from this beer label as json:"

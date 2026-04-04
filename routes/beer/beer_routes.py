@@ -213,7 +213,7 @@ def create_beer_by_image(
         beer = session.exec(statement).one()
         if beer.brewery.name == brewery.name:
             return (
-                f"{TYPE} `{data["name"]}` with code `{data["beer_code"]}` "
+                f"{TYPE} `{data['name']}` with code `{data['beer_code']}` "
                 f"from brewery '{brewery.name}' already exists"
             )
 
