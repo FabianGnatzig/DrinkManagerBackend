@@ -158,7 +158,7 @@ def delete_user(
 
 @router.patch("/{user_id}")
 def update_user(
-    user_id: int, user: UserUpdate, session: Session = Depends(get_session)
+    user_id: int, user: UserUpdate, token: Annotated[str, Depends(oauth2_scheme)], session: Session = Depends(get_session),
 ) -> User:
     """
     Updates the data of a user.
@@ -167,6 +167,8 @@ def update_user(
     :param session: DB session.
     :return: Edited user instance.
     """
+    is_admin(token)
+
     user_db = session.get(User, user_id)
     if not user_db:
         raise NotFoundException(TYPE, data_id=user_id)
