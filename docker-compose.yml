@@ -4,6 +4,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PW}
+      MYSQL_ROOT_HOST: '%'
       MYSQL_DATABASE: beerbackend
     ports:
       - "3306:3306"
