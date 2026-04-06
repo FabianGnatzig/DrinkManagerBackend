@@ -3,7 +3,7 @@ Created by Fabian Gnatzig
 Description: Http routes of events.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Query
@@ -101,6 +101,35 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
     session.commit()
     session.refresh(event)
     return event
+
+@router.post("/add-recursive")
+def create_event_recursive(event_data: dict, amount: int, session: Session = Depends(get_session)) -> list[Event]:
+    """
+    Creates multiple event instances with recursive dates.
+    :param event_data: Event data with recursive data.
+    :param amount: Number of events to create.
+    :param session: DB session.
+    :return: List of created event instances.
+    """
+    if event_data["name"] == "":
+        raise IncompleteException(TYPE)
+
+    try:
+        event_data["event_date"] = datetime.strptime(
+            event_data["event_date"], "%Y-%m-%d"
+        ).date()
+    except Exception as ex:
+        raise InvalidException("event_date") from ex
+
+    events = []
+    for i in range(amount):
+        event = Event(**event_data)
+        session.add(event)
+        session.commit()
+        session.refresh(event)
+        events.append(event)
+        event_data["event_date"] = event_data["event_date"] + timedelta(weeks=1)
+    return events
 
 
 @router.delete("/{event_id}")

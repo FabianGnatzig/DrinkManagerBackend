@@ -55,6 +55,20 @@ def is_manager(jwt_token: str):
         raise InvalidTokenException from ex
 
 
+def is_user_role(jwt_token: str):
+    """
+    Helper method for authenticate if it is only a role user.
+    :param jwt_token: JWT-Token of the user that access.
+    :return: None.
+    """
+    try:
+        decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_jwt["role"] != "user"
+
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
+
+
 def is_user_or_admin(user_id: int, jwt_token: str):
     """
     Helper method for authenticate if the user access its data.

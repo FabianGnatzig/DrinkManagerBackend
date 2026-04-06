@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import is_admin
+from auth.auth_methods import is_admin, is_user_role
 from dependencies import get_session, oauth2_scheme
 from exceptions import NotFoundException, IncompleteException
 from models.season_models import Season, SeasonUpdate
@@ -19,18 +19,19 @@ TYPE = "SEASON"
 
 @router.get("/all")
 def read_all_seasons(
-    session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session)
 ) -> list:
     """
     Reads all season instances.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Maximum query size.
+    :param token: User jwt-token.
     :return: List of all seasons.
     """
-    statement = select(Season).offset(offset).limit(limit)
+    if is_user_role(token):
+        statement = select(Season).where(Season.team_id == get_user_team_id(token, session))
+    else:
+        statement = select(Season)
     seasons_data = session.exec(statement).all()
     seasons = []
     for season in seasons_data:
