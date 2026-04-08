@@ -56,7 +56,7 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
     return event_json
 
 
-@router.get("events/{season_id}")
+@router.get("s/{season_id}")
 def get_events_by_seasons(season_id: int, session: Session = Depends(get_session)) -> list:
     """
     Searches for events by season ID.
