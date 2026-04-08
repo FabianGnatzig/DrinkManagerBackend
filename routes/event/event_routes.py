@@ -56,6 +56,19 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
     return event_json
 
 
+@router.get("events/{season_id}")
+def get_events_by_seasons(season_id: int, session: Session = Depends(get_session)) -> list:
+    """
+    Searches for events by season ID.
+    :param season_id: ID of the season.
+    :param session: DB session.
+    :return: List of events for the specified season.
+    """
+    statement = select(Event).where(Event.season_id == season_id)
+    events = session.exec(statement).all()
+    return events
+
+
 @router.get("/name/{event_name}")
 def get_event_name(event_name: str, session: Session = Depends(get_session)) -> dict:
     """
