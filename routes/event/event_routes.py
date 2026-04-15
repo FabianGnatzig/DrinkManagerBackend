@@ -9,10 +9,11 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import is_admin
+from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException, IncompleteException, InvalidException
+from exceptions import NotFoundException, IncompleteException, InvalidException, InvalidRoleException
 from models.event_models import Event
+from models.season_models import Season
 
 router = APIRouter(prefix="/event", tags=["Event"])
 TYPE = "EVENT"
@@ -20,18 +21,23 @@ TYPE = "EVENT"
 
 @router.get("/all")
 def read_all_events(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[Event]:
     """
     Reads all event instances.
+    :param token: User jwt-token.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Query limit.
     :return: List of all events.
     """
-    statement = select(Event).offset(offset).limit(limit)
+    try:
+        is_admin(token)
+        statement = select(Event)    
+
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(Event).join(Season).where(Season.team_id == team_id)
+
     events = session.exec(statement).all()
     return events
 

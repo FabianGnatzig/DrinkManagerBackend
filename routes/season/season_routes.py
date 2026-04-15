@@ -8,9 +8,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
-from auth.auth_methods import is_admin, is_user_role
+from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException, IncompleteException
+from exceptions import NotFoundException, IncompleteException, InvalidRoleException
 from models.season_models import Season, SeasonUpdate
 
 router = APIRouter(prefix="/season", tags=["Season"])
@@ -28,10 +28,13 @@ def read_all_seasons(
     :param token: User jwt-token.
     :return: List of all seasons.
     """
-    if is_user_role(token):
-        statement = select(Season).where(Season.team_id == get_user_team_id(token, session))
-    else:
+    try:
+        is_admin(token)
         statement = select(Season)
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(Season).where(Season.team_id == team_id)
+
     seasons_data = session.exec(statement).all()
     seasons = []
     for season in seasons_data:

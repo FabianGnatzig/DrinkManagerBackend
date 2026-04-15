@@ -8,9 +8,9 @@ from typing import Annotated, Sequence
 from fastapi import APIRouter, Query, Depends
 from sqlmodel import select, Session
 
-from auth.auth_methods import is_admin
+from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException
+from exceptions import NotFoundException, InvalidRoleException
 from models.beer_models import UserBeer, UserBeerUpdate
 from models.user_models import User
 
@@ -21,18 +21,23 @@ TYPE = "USER_BEER"
 
 @router.get("/all")
 def read_user_beers(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[UserBeer]:
     """
     Reads all user beer instances.
+    :param token: User jwt-token.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Maximum query size.
     :return: List of all user beers.
     """
-    user_beer = session.exec(select(UserBeer).offset(offset).limit(limit)).all()
+    try:
+        is_admin(token)
+        statement = select(UserBeer)
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(UserBeer).join(User).where(User.team_id == team_id)
+
+    user_beer = session.exec(statement).all()
     return user_beer
 
 

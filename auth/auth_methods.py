@@ -102,3 +102,16 @@ def is_admin_or_manager(token: str):
         raise ex
 
     is_manager(token)
+
+def get_team_id(token: str) -> int:
+    """
+    Helper method for get the team id from the token.
+    :param token: JWT-Token of the user that access.
+    :return: Team ID of the user.
+    """
+    try:
+        decoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_jwt["team_ids"]
+
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex

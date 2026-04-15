@@ -10,9 +10,10 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
 from dependencies import get_session, oauth2_scheme, pwd_context
-from auth.auth_methods import is_admin, is_user_or_admin, is_admin_or_manager
+from auth.auth_methods import is_admin, is_user_or_admin, is_admin_or_manager, get_team_id
 from exceptions import (
     InvalidException,
+    InvalidRoleException,
     NotFoundException,
 )
 from models.team_models import Team
@@ -24,18 +25,22 @@ TYPE = "USER"
 
 @router.get("/all")
 def get_all_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[User]:
     """
     Reads all user instances.
+    :param token: User jwt-token.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Maximum query size.
     :return: List of all users.
     """
-    statement = select(User).offset(offset).limit(limit)
+    try:
+        is_admin(token)
+        statement = select(User)
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(User).where(User.team_id == team_id)
+
     users = session.exec(statement).all()
     return users
 
