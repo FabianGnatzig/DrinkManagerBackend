@@ -6,12 +6,17 @@ Description: Http routes of events.
 from datetime import datetime, timedelta
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
 from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException, IncompleteException, InvalidException, InvalidRoleException
+from exceptions import (
+    NotFoundException,
+    IncompleteException,
+    InvalidException,
+    InvalidRoleException,
+)
 from models.event_models import Event
 from models.season_models import Season
 
@@ -32,7 +37,7 @@ def read_all_events(
     """
     try:
         is_admin(token)
-        statement = select(Event)    
+        statement = select(Event)
 
     except InvalidRoleException:
         team_id = get_team_id(token)
@@ -63,7 +68,9 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
 
 
 @router.get("s/{season_id}")
-def get_events_by_seasons(season_id: int, session: Session = Depends(get_session)) -> list:
+def get_events_by_seasons(
+    season_id: int, session: Session = Depends(get_session)
+) -> list:
     """
     Searches for events by season ID.
     :param season_id: ID of the season.
@@ -121,8 +128,11 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
     session.refresh(event)
     return event
 
+
 @router.post("/add-recursive")
-def create_event_recursive(event_data: dict, amount: int, session: Session = Depends(get_session)) -> list[Event]:
+def create_event_recursive(
+    event_data: dict, amount: int, session: Session = Depends(get_session)
+) -> list[Event]:
     """
     Creates multiple event instances with recursive dates.
     :param event_data: Event data with recursive data.

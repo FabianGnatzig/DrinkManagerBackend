@@ -103,6 +103,7 @@ def is_admin_or_manager(token: str):
 
     is_manager(token)
 
+
 def get_team_id(token: str) -> int:
     """
     Helper method for get the team id from the token.

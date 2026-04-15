@@ -5,7 +5,7 @@ Description: Http routes of bring beers.
 
 from typing import Sequence, Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
 from auth.auth_methods import is_admin, get_team_id

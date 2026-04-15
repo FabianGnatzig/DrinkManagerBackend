@@ -5,7 +5,7 @@ Description: HTTP routes of season.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
 from auth.auth_methods import is_admin, get_team_id
@@ -20,7 +20,7 @@ TYPE = "SEASON"
 @router.get("/all")
 def read_all_seasons(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
 ) -> list:
     """
     Reads all season instances.

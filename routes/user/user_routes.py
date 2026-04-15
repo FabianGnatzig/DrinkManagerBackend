@@ -6,11 +6,16 @@ Description: HTTP Routes of user.
 from datetime import datetime
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
 from dependencies import get_session, oauth2_scheme, pwd_context
-from auth.auth_methods import is_admin, is_user_or_admin, is_admin_or_manager, get_team_id
+from auth.auth_methods import (
+    is_admin,
+    is_user_or_admin,
+    is_admin_or_manager,
+    get_team_id,
+)
 from exceptions import (
     InvalidException,
     InvalidRoleException,
@@ -163,7 +168,10 @@ def delete_user(
 
 @router.patch("/{user_id}")
 def update_user(
-    user_id: int, user: UserUpdate, token: Annotated[str, Depends(oauth2_scheme)], session: Session = Depends(get_session),
+    user_id: int,
+    user: UserUpdate,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
 ) -> User:
     """
     Updates the data of a user.
