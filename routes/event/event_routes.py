@@ -135,12 +135,11 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
 
 @router.post("/add-recursive")
 def create_event_recursive(
-    event_data: dict, amount: int, session: Session = Depends(get_session)
-) -> list[Event]:
+    event_data: dict, session: Session = Depends(get_session)
+) -> dict:
     """
     Creates multiple event instances with recursive dates.
     :param event_data: Event data with recursive data.
-    :param amount: Number of events to create.
     :param session: DB session.
     :return: List of created event instances.
     """
@@ -148,6 +147,8 @@ def create_event_recursive(
         raise IncompleteException(TYPE)
 
     event_data["season_id"] = _parse_uuid(event_data.get("season_id"))
+    
+    weeks = event_data.get("weeks")
 
     try:
         event_data["event_date"] = datetime.strptime(
@@ -156,15 +157,13 @@ def create_event_recursive(
     except Exception as ex:
         raise InvalidException("event_date") from ex
 
-    events = []
-    for i in range(amount):
+    for _ in range(weeks):
         event = Event(**event_data)
         session.add(event)
         session.commit()
         session.refresh(event)
-        events.append(event)
         event_data["event_date"] = event_data["event_date"] + timedelta(weeks=1)
-    return events
+    return {"result": f"{weeks} events created"}
 
 
 @router.delete("/{event_id}")

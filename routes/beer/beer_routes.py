@@ -62,6 +62,8 @@ def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
     :param session: DB session.
     :return: Created beer instance.
     """
+    if not isinstance(beer.brewery_id, uuid.UUID):
+        beer.brewery_id = uuid.UUID(beer.brewery_id)
 
     if not (beer.name and beer.brewery_id and beer.beer_code):
         raise IncompleteException(TYPE)
