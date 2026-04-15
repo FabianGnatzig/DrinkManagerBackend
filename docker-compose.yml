@@ -1,0 +1,37 @@
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: beerbackend
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PW}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DATABASE_PW}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      args:
+        DATABASE: mysql+pymysql://${DATABASE_USER}:${DATABASE_PW}@db:3306/beerbackend
+        HASH_KEY: ${HASH_KEY}
+    ports:
+      - "6969:6969"
+    environment:
+      DATABASE: mysql+pymysql://${DATABASE_USER}:${DATABASE_PW}@db:3306/beerbackend
+      HASH_KEY: ${HASH_KEY}
+      OPEN_API_KEY: ${OPEN_API_KEY}
+      OPEN_API_MODEL: ${OPEN_API_MODEL}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

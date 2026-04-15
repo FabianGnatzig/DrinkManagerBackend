@@ -5,12 +5,12 @@ Description: HTTP routes of season.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
-from auth.auth_methods import is_admin
+from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException, IncompleteException
+from exceptions import NotFoundException, IncompleteException, InvalidRoleException
 from models.season_models import Season, SeasonUpdate
 
 router = APIRouter(prefix="/season", tags=["Season"])
@@ -19,18 +19,22 @@ TYPE = "SEASON"
 
 @router.get("/all")
 def read_all_seasons(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> list:
     """
     Reads all season instances.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Maximum query size.
+    :param token: User jwt-token.
     :return: List of all seasons.
     """
-    statement = select(Season).offset(offset).limit(limit)
+    try:
+        is_admin(token)
+        statement = select(Season)
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(Season).where(Season.team_id == team_id)
+
     seasons_data = session.exec(statement).all()
     seasons = []
     for season in seasons_data:

@@ -55,6 +55,20 @@ def is_manager(jwt_token: str):
         raise InvalidTokenException from ex
 
 
+def is_user_role(jwt_token: str):
+    """
+    Helper method for authenticate if it is only a role user.
+    :param jwt_token: JWT-Token of the user that access.
+    :return: None.
+    """
+    try:
+        decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_jwt["role"] != "user"
+
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex
+
+
 def is_user_or_admin(user_id: int, jwt_token: str):
     """
     Helper method for authenticate if the user access its data.
@@ -88,3 +102,17 @@ def is_admin_or_manager(token: str):
         raise ex
 
     is_manager(token)
+
+
+def get_team_id(token: str) -> int:
+    """
+    Helper method for get the team id from the token.
+    :param token: JWT-Token of the user that access.
+    :return: Team ID of the user.
+    """
+    try:
+        decoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_jwt["team_ids"]
+
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
+        raise InvalidTokenException from ex

@@ -31,7 +31,7 @@ def read_open_beer(session: Session = Depends(get_session)) -> list[dict]:
     statement = (
         select(UserBeer)
         .outerjoin(BringBeer, UserBeer.id == BringBeer.user_beer_id)
-        .where(BringBeer.id == None)
+        .where(BringBeer.id == None)  # noqa: E711
     )
     results = session.exec(statement).all()
 

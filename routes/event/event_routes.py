@@ -3,16 +3,22 @@ Created by Fabian Gnatzig
 Description: Http routes of events.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
-from auth.auth_methods import is_admin
+from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException, IncompleteException, InvalidException
+from exceptions import (
+    NotFoundException,
+    IncompleteException,
+    InvalidException,
+    InvalidRoleException,
+)
 from models.event_models import Event
+from models.season_models import Season
 
 router = APIRouter(prefix="/event", tags=["Event"])
 TYPE = "EVENT"
@@ -20,18 +26,23 @@ TYPE = "EVENT"
 
 @router.get("/all")
 def read_all_events(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[Event]:
     """
     Reads all event instances.
+    :param token: User jwt-token.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Query limit.
     :return: List of all events.
     """
-    statement = select(Event).offset(offset).limit(limit)
+    try:
+        is_admin(token)
+        statement = select(Event)
+
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(Event).join(Season).where(Season.team_id == team_id)
+
     events = session.exec(statement).all()
     return events
 
@@ -54,6 +65,21 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
     if event.bring_beer:
         event_json.update({"bring_beer": event.bring_beer})
     return event_json
+
+
+@router.get("s/{season_id}")
+def get_events_by_seasons(
+    season_id: int, session: Session = Depends(get_session)
+) -> list:
+    """
+    Searches for events by season ID.
+    :param season_id: ID of the season.
+    :param session: DB session.
+    :return: List of events for the specified season.
+    """
+    statement = select(Event).where(Event.season_id == season_id)
+    events = session.exec(statement).all()
+    return events
 
 
 @router.get("/name/{event_name}")
@@ -101,6 +127,38 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
     session.commit()
     session.refresh(event)
     return event
+
+
+@router.post("/add-recursive")
+def create_event_recursive(
+    event_data: dict, amount: int, session: Session = Depends(get_session)
+) -> list[Event]:
+    """
+    Creates multiple event instances with recursive dates.
+    :param event_data: Event data with recursive data.
+    :param amount: Number of events to create.
+    :param session: DB session.
+    :return: List of created event instances.
+    """
+    if event_data["name"] == "":
+        raise IncompleteException(TYPE)
+
+    try:
+        event_data["event_date"] = datetime.strptime(
+            event_data["event_date"], "%Y-%m-%d"
+        ).date()
+    except Exception as ex:
+        raise InvalidException("event_date") from ex
+
+    events = []
+    for i in range(amount):
+        event = Event(**event_data)
+        session.add(event)
+        session.commit()
+        session.refresh(event)
+        events.append(event)
+        event_data["event_date"] = event_data["event_date"] + timedelta(weeks=1)
+    return events
 
 
 @router.delete("/{event_id}")

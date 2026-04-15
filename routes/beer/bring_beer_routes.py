@@ -5,13 +5,14 @@ Description: Http routes of bring beers.
 
 from typing import Sequence, Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
-from auth.auth_methods import is_admin
+from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
-from exceptions import NotFoundException
+from exceptions import NotFoundException, InvalidRoleException
 from models.beer_models import BringBeer, BringBeerUpdate
+from models.user_models import User
 
 router = APIRouter(prefix="/bringbeer", tags=["BringBeer"])
 
@@ -20,19 +21,23 @@ TYPE = "BRING_BEER"
 
 @router.get("/all")
 def read_bring_beers(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[BringBeer]:
     """
     Reads all bring beer instances.
+    :param token: User jwt-token.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Query limit.
     :return: List of all bring beer instances.
     """
-    statements = select(BringBeer).offset(offset).limit(limit)
-    bring_beers = session.exec(statements).all()
+    try:
+        is_admin(token)
+        statement = select(BringBeer)
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(BringBeer).join(User).where(User.team_id == team_id)
+
+    bring_beers = session.exec(statement).all()
     return bring_beers
 
 

@@ -6,15 +6,22 @@ Description: HTTP Routes of user.
 from datetime import datetime
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
 from dependencies import get_session, oauth2_scheme, pwd_context
-from auth.auth_methods import is_admin, is_user_or_admin, is_admin_or_manager
+from auth.auth_methods import (
+    is_admin,
+    is_user_or_admin,
+    is_admin_or_manager,
+    get_team_id,
+)
 from exceptions import (
     InvalidException,
+    InvalidRoleException,
     NotFoundException,
 )
+from models.team_models import Team
 from models.user_models import User, UserUpdate
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -23,18 +30,22 @@ TYPE = "USER"
 
 @router.get("/all")
 def get_all_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[User]:
     """
     Reads all user instances.
+    :param token: User jwt-token.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Maximum query size.
     :return: List of all users.
     """
-    statement = select(User).offset(offset).limit(limit)
+    try:
+        is_admin(token)
+        statement = select(User)
+    except InvalidRoleException:
+        team_id = get_team_id(token)
+        statement = select(User).where(User.team_id == team_id)
+
     users = session.exec(statement).all()
     return users
 
@@ -60,6 +71,10 @@ def create_user(
         ).date()
     except Exception as ex:
         raise InvalidException("birthday") from ex
+
+    team = session.get(Team, user_data.get("team_id"))
+    if not team:
+        raise NotFoundException("TEAM", data_id=user_data.get("team_id"))
 
     if user_data["role"] == ("admin" or "manager"):
         is_admin(token)
@@ -153,7 +168,10 @@ def delete_user(
 
 @router.patch("/{user_id}")
 def update_user(
-    user_id: int, user: UserUpdate, session: Session = Depends(get_session)
+    user_id: int,
+    user: UserUpdate,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
 ) -> User:
     """
     Updates the data of a user.
@@ -162,6 +180,8 @@ def update_user(
     :param session: DB session.
     :return: Edited user instance.
     """
+    is_admin(token)
+
     user_db = session.get(User, user_id)
     if not user_db:
         raise NotFoundException(TYPE, data_id=user_id)
