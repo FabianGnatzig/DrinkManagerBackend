@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## v0.5.6 (2026-04-15)
+
+### Fix
+
+- cz pipeline
+- add cz pipeline
+
 ## v0.5.5 (2026-04-15)
 
 ### Fix
