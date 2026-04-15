@@ -43,11 +43,12 @@ async def lifespan(_app: FastAPI):  # pragma: no cover
         admin = session.exec(stmt).first()
 
         if not admin:
-            team = session.get(Team, 1)
+            team = session.exec(select(Team).where(Team.name == "team")).first()
             if not team:
                 team = Team(name="team")
                 session.add(team)
                 session.commit()
+                session.refresh(team)
 
             admin_user = User(
                 username="admin",
@@ -56,7 +57,7 @@ async def lifespan(_app: FastAPI):  # pragma: no cover
                 first_name="first_name",
                 last_name="last_name",
                 birthday="2000-01-01",
-                team_id=1,
+                team_id=team.id,
             )
             session.add(admin_user)
             session.commit()

@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: HTTP routes of beer.
 """
 
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Query, Depends, HTTPException, UploadFile, File
@@ -61,6 +62,7 @@ def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
     :param session: DB session.
     :return: Created beer instance.
     """
+
     if not (beer.name and beer.brewery_id and beer.beer_code):
         raise IncompleteException(TYPE)
 
@@ -71,7 +73,7 @@ def create_beer(beer: Beer, session: Session = Depends(get_session)) -> Beer:
 
 
 @router.get("/{beer_id}")
-def read_beer_id(beer_id: int, session: Session = Depends(get_session)) -> dict:
+def read_beer_id(beer_id: uuid.UUID, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a beer with ID.
     :param beer_id: ID of beer to search for.
@@ -139,7 +141,7 @@ def read_beer_name(beer_name: str, session: Session = Depends(get_session)) -> d
 
 @router.delete("/{beer_id}")
 def delete_beer(
-    beer_id: int,
+    beer_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -163,7 +165,7 @@ def delete_beer(
 
 @router.patch("/{beer_id}")
 def update_beer(
-    beer_id: int, beer: BeerUpdate, session: Session = Depends(get_session)
+    beer_id: uuid.UUID, beer: BeerUpdate, session: Session = Depends(get_session)
 ) -> Beer:
     """
     Updates the data of a beer.

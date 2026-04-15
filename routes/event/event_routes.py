@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: Http routes of events.
 """
 
+import uuid
 from datetime import datetime, timedelta
 from typing import Annotated, Sequence
 
@@ -11,6 +12,7 @@ from sqlmodel import Session, select
 
 from auth.auth_methods import is_admin, get_team_id
 from dependencies import get_session, oauth2_scheme
+from models.types import _parse_uuid
 from exceptions import (
     NotFoundException,
     IncompleteException,
@@ -48,7 +50,7 @@ def read_all_events(
 
 
 @router.get("/{event_id}")
-def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict:
+def get_event_id(event_id: uuid.UUID, session: Session = Depends(get_session)) -> dict:
     """
     Searches for an event with id.
     :param event_id: ID of an event.
@@ -69,7 +71,7 @@ def get_event_id(event_id: int, session: Session = Depends(get_session)) -> dict
 
 @router.get("s/{season_id}")
 def get_events_by_seasons(
-    season_id: int, session: Session = Depends(get_session)
+    season_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> list:
     """
     Searches for events by season ID.
@@ -115,6 +117,8 @@ def create_event(event_data: dict, session: Session = Depends(get_session)) -> E
     if event_data["name"] == "":
         raise IncompleteException(TYPE)
 
+    event_data["season_id"] = _parse_uuid(event_data.get("season_id"))
+
     try:
         event_data["event_date"] = datetime.strptime(
             event_data["event_date"], "%Y-%m-%d"
@@ -143,6 +147,8 @@ def create_event_recursive(
     if event_data["name"] == "":
         raise IncompleteException(TYPE)
 
+    event_data["season_id"] = _parse_uuid(event_data.get("season_id"))
+
     try:
         event_data["event_date"] = datetime.strptime(
             event_data["event_date"], "%Y-%m-%d"
@@ -163,7 +169,7 @@ def create_event_recursive(
 
 @router.delete("/{event_id}")
 def delete_event(
-    event_id: int,
+    event_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -187,7 +193,7 @@ def delete_event(
 
 @router.patch("/{event_id}")
 def update_event(
-    event_id: int, event: Event, session: Session = Depends(get_session)
+    event_id: uuid.UUID, event: Event, session: Session = Depends(get_session)
 ) -> Event:
     """
     Updates the data of an event.

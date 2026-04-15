@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: HTTP routes of season.
 """
 
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -46,7 +47,7 @@ def read_all_seasons(
 
 
 @router.get("/{season_id}")
-def get_season_id(season_id: int, session: Session = Depends(get_session)) -> dict:
+def get_season_id(season_id: uuid.UUID, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a season with ID.
     :param season_id: ID of a season to search for.
@@ -95,6 +96,9 @@ def create_season(season: Season, session: Session = Depends(get_session)) -> Se
     :param session: DB session.
     :return: Created season instance.
     """
+    if not isinstance(season.team_id, uuid.UUID):
+        season.team_id = uuid.UUID(season.team_id)
+
     if not (season.name and season.team_id):
         raise IncompleteException(TYPE)
 
@@ -106,7 +110,7 @@ def create_season(season: Season, session: Session = Depends(get_session)) -> Se
 
 @router.delete("/{season_id}")
 def delete_season(
-    season_id: int,
+    season_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -130,7 +134,7 @@ def delete_season(
 
 @router.patch("/{season_id}")
 def update_season(
-    season_id: int, season: SeasonUpdate, session: Session = Depends(get_session)
+    season_id: uuid.UUID, season: SeasonUpdate, session: Session = Depends(get_session)
 ) -> Season:
     """
     Updates the data of a season.
