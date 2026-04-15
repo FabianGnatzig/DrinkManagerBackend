@@ -76,6 +76,15 @@ def create_bring_beer(
     :param session: DB session.
     :return: Created bring beer instance.
     """
+    if not isinstance(bring_beer.user_id, uuid.UUID):
+        bring_beer.user_id = uuid.UUID(bring_beer.user_id)
+    if not isinstance(bring_beer.event_id, uuid.UUID):
+        bring_beer.event_id = uuid.UUID(bring_beer.event_id)
+    if not isinstance(bring_beer.beer_id, uuid.UUID):
+        bring_beer.beer_id = uuid.UUID(bring_beer.beer_id)
+    if not isinstance(bring_beer.user_beer_id, uuid.UUID):
+        bring_beer.user_beer_id = uuid.UUID(bring_beer.user_beer_id)
+
     session.add(bring_beer)
     session.commit()
     session.refresh(bring_beer)

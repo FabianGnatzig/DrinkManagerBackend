@@ -52,6 +52,9 @@ def create_user_beer(
     :param session: DB session.
     :return: Created user beer instance.
     """
+    if not isinstance(user_beer.user_id, uuid.UUID):
+        user_beer.user_id = uuid.UUID(user_beer.user_id)
+
     user = session.get(User, user_beer.user_id)
     user_beer.user = user if user else None
     session.add(user_beer)
