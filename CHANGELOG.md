@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## v0.5.5 (2026-04-15)
+
+### Fix
+
+- docker build
+- commitizen version
+
 ## [v0.5.4] - 2025-09-11
 ### Changed
 - Improved readme
