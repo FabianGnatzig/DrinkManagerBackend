@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: Configured Exceptions
 """
 
+import uuid
 from typing import Optional
 
 from fastapi import HTTPException, status
@@ -17,7 +18,7 @@ class NotFoundException(HTTPException):
         self,
         type_name: str,
         data_name: Optional[str] = None,
-        data_id: Optional[int] = None,
+        data_id: Optional[uuid.UUID] = None,
         data_code: Optional[str] = None,
     ):
         if data_name:

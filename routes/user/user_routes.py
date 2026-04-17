@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: HTTP Routes of user.
 """
 
+import uuid
 from datetime import datetime
 from typing import Annotated, Sequence
 
@@ -65,6 +66,9 @@ def create_user(
     """
     is_admin_or_manager(token)
 
+    if not isinstance(user_data["team_id"], uuid.UUID):
+        user_data["team_id"] = uuid.UUID(user_data["team_id"])
+
     try:
         user_data["birthday"] = datetime.strptime(
             user_data["birthday"], "%Y-%m-%d"
@@ -90,7 +94,7 @@ def create_user(
 
 @router.get("/{user_id}")
 def get_user_id(
-    user_id: int,
+    user_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -144,7 +148,7 @@ def get_user_name(user_name: str, session: Session = Depends(get_session)) -> di
 
 @router.delete("/{user_id}")
 def delete_user(
-    user_id: int,
+    user_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -168,7 +172,7 @@ def delete_user(
 
 @router.patch("/{user_id}")
 def update_user(
-    user_id: int,
+    user_id: uuid.UUID,
     user: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),

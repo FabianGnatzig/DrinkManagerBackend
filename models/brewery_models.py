@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: Models of brewery's.
 """
 
+import uuid
 from typing import List, TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
@@ -26,7 +27,7 @@ class Brewery(BreweryBase, table=True):
     Table class of brewery.
     """
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     beers: List["Beer"] | None = Relationship(back_populates="brewery")
 
 

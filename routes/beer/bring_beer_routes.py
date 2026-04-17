@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: Http routes of bring beers.
 """
 
+import uuid
 from typing import Sequence, Annotated
 
 from fastapi import APIRouter, Depends
@@ -43,7 +44,7 @@ def read_bring_beers(
 
 @router.get("/{bring_beer_id}")
 def read_bring_beer_id(
-    bring_beer_id: int, session: Session = Depends(get_session)
+    bring_beer_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> dict:
     """
     Searches for a bring beer with id.
@@ -75,6 +76,15 @@ def create_bring_beer(
     :param session: DB session.
     :return: Created bring beer instance.
     """
+    if not isinstance(bring_beer.user_id, uuid.UUID):
+        bring_beer.user_id = uuid.UUID(bring_beer.user_id)
+    if not isinstance(bring_beer.event_id, uuid.UUID):
+        bring_beer.event_id = uuid.UUID(bring_beer.event_id)
+    if not isinstance(bring_beer.beer_id, uuid.UUID):
+        bring_beer.beer_id = uuid.UUID(bring_beer.beer_id)
+    if not isinstance(bring_beer.user_beer_id, uuid.UUID):
+        bring_beer.user_beer_id = uuid.UUID(bring_beer.user_beer_id)
+
     session.add(bring_beer)
     session.commit()
     session.refresh(bring_beer)
@@ -83,7 +93,7 @@ def create_bring_beer(
 
 @router.delete("/{bring_beer_id}")
 def delete_bring_beer(
-    bring_beer_id: int,
+    bring_beer_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -107,7 +117,7 @@ def delete_bring_beer(
 
 @router.patch("/{bring_beer_id}")
 def update_bring_beer(
-    bring_beer_id: int,
+    bring_beer_id: uuid.UUID,
     bring_beer: BringBeerUpdate,
     session: Session = Depends(get_session),
 ) -> BringBeer:
@@ -130,7 +140,7 @@ def update_bring_beer(
 
 
 @router.get("/done/{bring_beer_id}")
-def set_bring_beer_done(bring_beer_id: int, session: Session = Depends(get_session)):
+def set_bring_beer_done(bring_beer_id: uuid.UUID, session: Session = Depends(get_session)):
     """
     Set the bring beer to done.
     :param bring_beer_id: ID of bring beer.

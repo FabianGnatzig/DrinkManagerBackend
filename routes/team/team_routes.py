@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: HTTP Routes of team.
 """
 
+import uuid
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Query
@@ -21,17 +22,13 @@ TYPE = "TEAM"
 @router.get("/all")
 def read_all_teams(
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
 ) -> Sequence[Team]:
     """
     Reads all team instances.
     :param session: DB session.
-    :param offset: Start offset.
-    :param limit: Maximum query.
     :return: List of all teams.
     """
-    statement = select(Team).offset(offset).limit(limit)
+    statement = select(Team)
     teams = session.exec(statement).all()
     return teams
 
@@ -54,7 +51,7 @@ def create_team(team: Team, session: Session = Depends(get_session)) -> Team:
 
 
 @router.get("/{team_id}")
-def read_team_id(team_id: int, session: Session = Depends(get_session)) -> dict:
+def read_team_id(team_id: uuid.UUID, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a team with ID.
     :param team_id: ID of a team to search for.
@@ -104,7 +101,7 @@ def read_team_name(team_name: str, session: Session = Depends(get_session)) -> d
 
 @router.delete("/{team_id}")
 def delete_team(
-    team_id: int,
+    team_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -128,7 +125,7 @@ def delete_team(
 
 @router.patch("/{team_id}")
 def update_team(
-    team_id: int, team: TeamUpdate, session: Session = Depends(get_session)
+    team_id: uuid.UUID, team: TeamUpdate, session: Session = Depends(get_session)
 ) -> Team:
     """
     Updates the data of a team.

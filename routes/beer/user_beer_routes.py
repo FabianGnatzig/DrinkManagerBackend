@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: HTTP routes of user beer.
 """
 
+import uuid
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends
@@ -51,6 +52,9 @@ def create_user_beer(
     :param session: DB session.
     :return: Created user beer instance.
     """
+    if not isinstance(user_beer.user_id, uuid.UUID):
+        user_beer.user_id = uuid.UUID(user_beer.user_id)
+
     user = session.get(User, user_beer.user_id)
     user_beer.user = user if user else None
     session.add(user_beer)
@@ -61,7 +65,7 @@ def create_user_beer(
 
 @router.get("/{user_beer_id}")
 def read_user_beer_id(
-    user_beer_id: int, session: Session = Depends(get_session)
+    user_beer_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> dict:
     """
     Searches for a user beer with beer_id.
@@ -84,7 +88,7 @@ def read_user_beer_id(
 
 @router.delete("/{user_beer_id}")
 def delete_beer(
-    user_beer_id: int,
+    user_beer_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -108,7 +112,7 @@ def delete_beer(
 
 @router.patch("/{user_beer_id}")
 def update_beer(
-    user_beer_id: int,
+    user_beer_id: uuid.UUID,
     user_beer: UserBeerUpdate,
     session: Session = Depends(get_session),
 ) -> UserBeer:

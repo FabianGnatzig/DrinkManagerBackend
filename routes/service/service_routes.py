@@ -129,6 +129,12 @@ def setup_beer(session: Session):
             try:
                 read_beer_name(beer_data["name"], session)
             except HTTPException:
+                brewery_name = beer_data["brewery_id"]
+                statement = select(Brewery).where(Brewery.name == brewery_name)
+                brewery = session.exec(statement).first()
+                if not brewery:
+                    continue
+                beer_data["brewery_id"] = brewery.id
                 create_beer(Beer(**beer_data), session)
 
 

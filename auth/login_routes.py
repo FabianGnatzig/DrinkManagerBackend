@@ -78,8 +78,8 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={
             "username": user["username"],
-            "user_id": user["id"],
-            "team_ids": user["team"]["id"],
+            "user_id": str(user["id"]),
+            "team_ids": str(user["team"]["id"]),
             "role": user["role"],
         },
         expires_delta=access_token_expires,

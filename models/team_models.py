@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: Models of teams.
 """
 
+import uuid
 from typing import List, TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
@@ -25,7 +26,7 @@ class Team(TeamBase, table=True):
     Table class of team.
     """
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     users: List["User"] | None = Relationship(back_populates="team")
     seasons: List["Season"] | None = Relationship(back_populates="team")
 

@@ -3,12 +3,14 @@ Created by Fabian Gnatzig
 Description: Models of users.
 """
 
+import uuid
 from datetime import date
 from typing import Optional, TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
 
 from models.beer_models import BringBeer
+from models.types import UUIDType
 
 if TYPE_CHECKING:
     from .team_models import Team
@@ -24,7 +26,7 @@ class UserBase(SQLModel):
     first_name: str
     last_name: str
     birthday: date
-    team_id: int = Field(default=None, foreign_key="team.id")
+    team_id: UUIDType = Field(default=None, foreign_key="team.id")
     password: str
     role: str
 
@@ -34,7 +36,7 @@ class User(UserBase, table=True):
     Table class of user.
     """
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     team: Optional["Team"] = Relationship(back_populates="users")
     user_beer: list["UserBeer"] = Relationship(back_populates="user")
     bring_beer: list["BringBeer"] = Relationship(back_populates="user")
@@ -49,7 +51,7 @@ class UserUpdate(UserBase):
     first_name: str | None = None
     last_name: str | None = None
     birthday: date | None = None
-    team_id: int | None = None
+    team_id: UUIDType = None
     password: str | None = None
     role: str | None = None
 

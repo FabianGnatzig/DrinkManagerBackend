@@ -3,6 +3,7 @@ Created by Fabian Gnatzig
 Description: HTTP routes of brewery's.
 """
 
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -63,7 +64,7 @@ def create_brewery(
 
 
 @router.get("/{brewery_id}")
-def read_brewery_id(brewery_id: int, session: Session = Depends(get_session)) -> dict:
+def read_brewery_id(brewery_id: uuid.UUID, session: Session = Depends(get_session)) -> dict:
     """
     Searches for a brewery with id.
     :param brewery_id: ID of a beer to search for.
@@ -108,7 +109,7 @@ def read_brewery_name(
 
 @router.delete("/{brewery_id}")
 def delete_brewery(
-    brewery_id: int,
+    brewery_id: uuid.UUID,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Session = Depends(get_session),
 ) -> dict:
@@ -133,7 +134,7 @@ def delete_brewery(
 
 @router.patch("/{brewery_id}")
 def update_brewery(
-    brewery_id: int, brewery: BreweryUpdate, session: Session = Depends(get_session)
+    brewery_id: uuid.UUID, brewery: BreweryUpdate, session: Session = Depends(get_session)
 ) -> Brewery:
     """
     Updates the data of a brewery.

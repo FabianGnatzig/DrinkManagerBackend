@@ -3,13 +3,15 @@ Created by Fabian Gnatzig
 Description: Methods for authentication.
 """
 
+import uuid
+
 import jwt
 
 from dependencies import SECRET_KEY, ALGORITHM
 from exceptions import InvalidUserException, InvalidTokenException, InvalidRoleException
 
 
-def is_user(user_id: int, jwt_token: str):
+def is_user(user_id: uuid.UUID, jwt_token: str):
     """
     Helper method for authenticate if the user access its data.
     :param user_id: ID of user that will be accessed.
@@ -18,7 +20,7 @@ def is_user(user_id: int, jwt_token: str):
     """
     try:
         decoded_jwt = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-        if user_id != decoded_jwt["user_id"]:
+        if user_id != uuid.UUID(decoded_jwt["user_id"]):
             raise InvalidUserException
 
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
@@ -69,7 +71,7 @@ def is_user_role(jwt_token: str):
         raise InvalidTokenException from ex
 
 
-def is_user_or_admin(user_id: int, jwt_token: str):
+def is_user_or_admin(user_id: uuid.UUID, jwt_token: str):
     """
     Helper method for authenticate if the user access its data.
     :param user_id: ID of user that access.
@@ -104,7 +106,7 @@ def is_admin_or_manager(token: str):
     is_manager(token)
 
 
-def get_team_id(token: str) -> int:
+def get_team_id(token: str) -> uuid.UUID:
     """
     Helper method for get the team id from the token.
     :param token: JWT-Token of the user that access.
@@ -112,7 +114,7 @@ def get_team_id(token: str) -> int:
     """
     try:
         decoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return decoded_jwt["team_ids"]
+        return uuid.UUID(decoded_jwt["team_ids"])
 
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as ex:
         raise InvalidTokenException from ex
